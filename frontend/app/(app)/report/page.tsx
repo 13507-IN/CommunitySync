@@ -2,9 +2,40 @@
 
 import React, { useState } from "react";
 import { Upload, MapPin, AlertTriangle, Send } from "lucide-react";
+import LocationPicker from "@/components/map/LocationPicker";
+
+interface LocationData {
+  lat: number;
+  lng: number;
+  address?: string;
+}
+
+interface FormData {
+  category: string;
+  description: string;
+  location: LocationData | null;
+  images: File[];
+}
 
 export default function ReportIssuePage() {
   const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState<FormData>({
+    category: "",
+    description: "",
+    location: null,
+    images: [],
+  });
+
+  const updateFormData = (data: Partial<FormData>) => {
+    setFormData((prev) => ({ ...prev, ...data }));
+  };
+
+  const handleLocationChange = (location: LocationData) => {
+    updateFormData({ location });
+  };
+
+  const canProceedToStep2 = formData.category && formData.description.length >= 10;
+  const canProceedToStep3 = formData.location !== null;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 md:space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-12 md:pb-0">
@@ -50,7 +81,12 @@ export default function ReportIssuePage() {
                     {["INFRA", "UTILITY", "SAFETY", "HEALTH"].map((cat) => (
                       <button 
                         key={cat}
-                        className="px-4 py-6 md:px-6 md:py-8 border-4 border-swiss-fg font-black text-xs tracking-widest uppercase hover:bg-swiss-red hover:text-swiss-bg transition-all"
+                        onClick={() => updateFormData({ category: cat })}
+                        className={`px-4 py-6 md:px-6 md:py-8 border-4 border-swiss-fg font-black text-xs tracking-widest uppercase transition-all ${
+                          formData.category === cat 
+                            ? "bg-swiss-red text-swiss-bg" 
+                            : "hover:bg-swiss-red hover:text-swiss-bg"
+                        }`}
                       >
                         {cat}
                       </button>
@@ -61,9 +97,14 @@ export default function ReportIssuePage() {
                 <div className="space-y-4">
                   <label className="text-[10px] font-black tracking-widest uppercase">Description of Event</label>
                   <textarea 
+                    value={formData.description}
+                    onChange={(e) => updateFormData({ description: e.target.value })}
                     className="w-full h-32 md:h-48 p-4 md:p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all placeholder:text-swiss-fg/20"
                     placeholder="PROVIDE DETAILED DESCRIPTION..."
                   />
+                  <p className="text-[10px] font-black tracking-widest uppercase text-swiss-fg/40">
+                    {formData.description.length} / 500 characters
+                  </p>
                 </div>
               </div>
             </div>
@@ -76,20 +117,7 @@ export default function ReportIssuePage() {
                   <MapPin className="w-4 h-4 text-swiss-red" />
                   Location Coordinates
                 </label>
-                <div className="h-64 md:h-80 bg-swiss-muted border-4 border-swiss-fg swiss-grid-pattern flex items-center justify-center relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-swiss-fg/5 swiss-diagonal" />
-                  <div className="relative z-10 flex flex-col items-center gap-4 text-center px-4">
-                    <button className="px-6 py-4 md:px-8 md:py-4 bg-swiss-fg text-swiss-bg text-xs font-black tracking-widest uppercase hover:bg-swiss-red transition-colors">
-                      PICK FROM MAP
-                    </button>
-                    <p className="text-[8px] md:text-[10px] font-bold text-swiss-fg/40 uppercase tracking-widest">OR SEARCH ADDRESS BELOW</p>
-                  </div>
-                </div>
-                <input 
-                  type="text" 
-                  placeholder="ENTER ADDRESS..."
-                  className="w-full p-4 md:p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all"
-                />
+                <LocationPicker onLocationChange={handleLocationChange} />
               </div>
             </div>
           )}
@@ -133,7 +161,12 @@ export default function ReportIssuePage() {
             )}
             <button 
               onClick={() => step < 3 ? setStep(s => s + 1) : null}
-              className={`flex-[2] py-4 md:py-6 bg-swiss-fg text-swiss-bg font-black tracking-widest uppercase hover:bg-swiss-red transition-colors flex items-center justify-center gap-3 text-sm`}
+              disabled={(step === 1 && !canProceedToStep2) || (step === 2 && !canProceedToStep3)}
+              className={`flex-[2] py-4 md:py-6 font-black tracking-widest uppercase transition-colors flex items-center justify-center gap-3 text-sm ${
+                (step === 1 && !canProceedToStep2) || (step === 2 && !canProceedToStep3)
+                  ? "bg-swiss-fg/20 text-swiss-fg/40 cursor-not-allowed"
+                  : "bg-swiss-fg text-swiss-bg hover:bg-swiss-red"
+              }`}
             >
               {step === 3 ? "FINALIZE REPORT" : "CONTINUE"}
               {step === 3 ? <Send className="w-5 h-5" /> : null}

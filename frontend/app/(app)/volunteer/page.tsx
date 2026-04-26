@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Users, Target, Zap, Clock, MapPin, ArrowRight } from "lucide-react";
+import { Users, Target, Zap, MapPin, ArrowRight } from "lucide-react";
 
 const tasks = [
   { id: "V-102", title: "CLEANUP DRIVE SECTOR 12", location: "CENTRAL PARK", urgency: "HIGH", points: "+50 XP", skills: "PHYSICAL" },
@@ -14,25 +14,25 @@ const tasks = [
 
 export default function VolunteerPage() {
   return (
-    <div className="space-y-12 animate-in fade-in duration-700">
+    <div className="space-y-8 md:space-y-12 animate-in fade-in duration-700">
       {/* Header Section */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6 md:gap-4">
         <div className="flex items-center gap-4">
           <span className="px-3 py-1 bg-swiss-red text-swiss-bg text-[10px] font-black tracking-widest uppercase">
             04. COMMUNITY ACTION
           </span>
           <div className="h-px flex-1 bg-swiss-fg/10" />
         </div>
-        <div className="flex justify-between items-end">
-          <h1 className="text-[7rem] font-black tracking-tighter leading-[0.8] uppercase">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <h1 className="text-5xl md:text-[7rem] font-black tracking-tighter leading-[0.8] uppercase">
             VOLUNTEER<br />NETWORK
           </h1>
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-start md:items-end gap-2 w-full md:w-auto border-4 md:border-0 border-swiss-fg p-6 md:p-0 bg-swiss-muted md:bg-transparent">
             <p className="text-[10px] font-black tracking-widest uppercase">YOUR IMPACT SCORE</p>
             <div className="flex items-center gap-4">
-              <span className="text-6xl font-black tracking-tighter">840</span>
-              <div className="w-12 h-12 bg-swiss-fg text-swiss-bg flex items-center justify-center border-2 border-swiss-red">
-                <Target className="w-6 h-6" />
+              <span className="text-5xl md:text-6xl font-black tracking-tighter">840</span>
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-swiss-fg text-swiss-bg flex items-center justify-center border-2 border-swiss-red">
+                <Target className="w-5 h-5 md:w-6 md:h-6" />
               </div>
             </div>
           </div>
@@ -40,7 +40,7 @@ export default function VolunteerPage() {
       </div>
 
       {/* Stats / Badges Marquee */}
-      <div className="border-y-4 border-swiss-fg py-6 overflow-hidden bg-swiss-muted swiss-diagonal">
+      <div className="border-y-4 border-swiss-fg py-4 md:py-6 overflow-hidden bg-swiss-muted swiss-diagonal">
         <div className="flex gap-16 animate-marquee whitespace-nowrap">
           {[1, 2].map((m) => (
             <div key={m} className="flex gap-16 items-center">
@@ -56,18 +56,18 @@ export default function VolunteerPage() {
       </div>
 
       {/* Task Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         {tasks.map((task, i) => (
-          <div key={i} className="border-4 border-swiss-fg p-8 flex flex-col justify-between hover:bg-swiss-fg group transition-all duration-300 relative overflow-hidden group">
+          <div key={i} className="border-4 border-swiss-fg p-6 md:p-8 flex flex-col justify-between hover:bg-swiss-fg group transition-all duration-300 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4">
               <span className={`px-2 py-1 text-[8px] font-black tracking-widest uppercase border-2 border-swiss-fg group-hover:border-swiss-bg group-hover:text-swiss-bg ${task.urgency === 'HIGH' ? 'bg-swiss-red group-hover:bg-swiss-red' : ''}`}>
                 {task.urgency}
               </span>
             </div>
             
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               <p className="text-[10px] font-black tracking-widest uppercase text-swiss-fg/40 group-hover:text-swiss-bg/40">{task.id}</p>
-              <h3 className="text-3xl font-black tracking-tighter uppercase leading-tight group-hover:text-swiss-bg">
+              <h3 className="text-2xl md:text-3xl font-black tracking-tighter uppercase leading-tight group-hover:text-swiss-bg">
                 {task.title}
               </h3>
               
@@ -83,7 +83,7 @@ export default function VolunteerPage() {
               </div>
             </div>
 
-            <div className="mt-12 pt-8 border-t-2 border-swiss-fg/10 group-hover:border-swiss-bg/20 flex justify-between items-center">
+            <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t-2 border-swiss-fg/10 group-hover:border-swiss-bg/20 flex justify-between items-center">
               <span className="text-[10px] font-black tracking-widest uppercase text-swiss-fg/60 group-hover:text-swiss-muted">{task.skills}</span>
               <button className="flex items-center gap-2 text-[10px] font-black tracking-widest uppercase group-hover:text-swiss-red transition-colors">
                 ACCEPT <ArrowRight className="w-4 h-4" />
@@ -94,15 +94,15 @@ export default function VolunteerPage() {
       </div>
 
       {/* Action Banner */}
-      <div className="border-4 border-swiss-fg p-12 bg-swiss-fg text-swiss-bg flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden">
+      <div className="border-4 border-swiss-fg p-8 md:p-12 bg-swiss-fg text-swiss-bg flex flex-col lg:flex-row justify-between items-center gap-8 relative overflow-hidden">
         <div className="absolute inset-0 swiss-dots opacity-10 pointer-events-none" />
-        <div className="relative z-10">
-          <h2 className="text-5xl font-black tracking-tighter uppercase leading-[0.9] mb-4">
-            WANT TO DO<br />MORE?
+        <div className="relative z-10 text-center lg:text-left">
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-[0.9] mb-4">
+            WANT TO DO<br className="hidden md:block" /> MORE?
           </h2>
-          <p className="text-xs font-bold text-swiss-bg/60 tracking-widest uppercase">CONNECT WITH LOCAL NGOs TO LEAD YOUR OWN PROJECT</p>
+          <p className="text-[10px] md:text-xs font-bold text-swiss-bg/60 tracking-widest uppercase">CONNECT WITH LOCAL NGOs TO LEAD YOUR OWN PROJECT</p>
         </div>
-        <button className="relative z-10 px-12 py-6 bg-swiss-red text-swiss-bg font-black tracking-widest uppercase hover:scale-105 transition-transform flex items-center gap-4">
+        <button className="w-full lg:w-auto relative z-10 px-8 py-4 md:px-12 md:py-6 bg-swiss-red text-swiss-bg font-black tracking-widest uppercase hover:scale-105 transition-transform flex items-center justify-center gap-4">
           CONTACT PARTNERS <Users className="w-5 h-5" />
         </button>
       </div>

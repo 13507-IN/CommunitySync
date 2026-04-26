@@ -7,7 +7,7 @@ export default function ReportIssuePage() {
   const [step, setStep] = useState(1);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+    <div className="max-w-4xl mx-auto space-y-8 md:space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-12 md:pb-0">
       {/* Header Section */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-4">
@@ -16,7 +16,7 @@ export default function ReportIssuePage() {
           </span>
           <div className="h-px flex-1 bg-swiss-fg/10" />
         </div>
-        <h1 className="text-[6rem] font-black tracking-tighter leading-[0.8] uppercase">
+        <h1 className="text-5xl md:text-[6rem] font-black tracking-tighter leading-[0.8] uppercase">
           REPORT<br />ISSUE
         </h1>
       </div>
@@ -28,16 +28,16 @@ export default function ReportIssuePage() {
           {[1, 2, 3].map((s) => (
             <div 
               key={s} 
-              className={`flex-1 py-4 text-center text-[10px] font-black tracking-widest uppercase transition-colors border-r-4 last:border-r-0 border-swiss-fg ${
+              className={`flex-1 py-4 text-center text-[10px] font-black tracking-widest uppercase transition-colors border-r-2 last:border-r-0 md:border-r-4 border-swiss-fg ${
                 step === s ? "bg-swiss-red text-swiss-bg" : step > s ? "bg-swiss-fg text-swiss-bg" : "text-swiss-fg/40"
               }`}
             >
-              STEP 0{s}
+              {step === s ? `0${s}` : s}
             </div>
           ))}
         </div>
 
-        <div className="p-12 space-y-12">
+        <div className="p-6 md:p-12 space-y-8 md:space-y-12">
           {step === 1 && (
             <div className="space-y-8 animate-in fade-in duration-500">
               <div className="grid grid-cols-1 gap-8">
@@ -46,11 +46,11 @@ export default function ReportIssuePage() {
                     <AlertTriangle className="w-4 h-4 text-swiss-red" />
                     Issue Category
                   </label>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
                     {["INFRA", "UTILITY", "SAFETY", "HEALTH"].map((cat) => (
                       <button 
                         key={cat}
-                        className="px-6 py-8 border-4 border-swiss-fg font-black text-xs tracking-widest uppercase hover:bg-swiss-red hover:text-swiss-bg transition-all"
+                        className="px-4 py-6 md:px-6 md:py-8 border-4 border-swiss-fg font-black text-xs tracking-widest uppercase hover:bg-swiss-red hover:text-swiss-bg transition-all"
                       >
                         {cat}
                       </button>
@@ -61,7 +61,7 @@ export default function ReportIssuePage() {
                 <div className="space-y-4">
                   <label className="text-[10px] font-black tracking-widest uppercase">Description of Event</label>
                   <textarea 
-                    className="w-full h-48 p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all placeholder:text-swiss-fg/20"
+                    className="w-full h-32 md:h-48 p-4 md:p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all placeholder:text-swiss-fg/20"
                     placeholder="PROVIDE DETAILED DESCRIPTION..."
                   />
                 </div>
@@ -76,19 +76,19 @@ export default function ReportIssuePage() {
                   <MapPin className="w-4 h-4 text-swiss-red" />
                   Location Coordinates
                 </label>
-                <div className="h-80 bg-swiss-muted border-4 border-swiss-fg swiss-grid-pattern flex items-center justify-center relative overflow-hidden group">
+                <div className="h-64 md:h-80 bg-swiss-muted border-4 border-swiss-fg swiss-grid-pattern flex items-center justify-center relative overflow-hidden group">
                   <div className="absolute inset-0 bg-swiss-fg/5 swiss-diagonal" />
-                  <div className="relative z-10 flex flex-col items-center gap-4">
-                    <button className="px-8 py-4 bg-swiss-fg text-swiss-bg text-xs font-black tracking-widest uppercase hover:bg-swiss-red transition-colors">
+                  <div className="relative z-10 flex flex-col items-center gap-4 text-center px-4">
+                    <button className="px-6 py-4 md:px-8 md:py-4 bg-swiss-fg text-swiss-bg text-xs font-black tracking-widest uppercase hover:bg-swiss-red transition-colors">
                       PICK FROM MAP
                     </button>
-                    <p className="text-[10px] font-bold text-swiss-fg/40 uppercase">OR SEARCH ADDRESS BELOW</p>
+                    <p className="text-[8px] md:text-[10px] font-bold text-swiss-fg/40 uppercase tracking-widest">OR SEARCH ADDRESS BELOW</p>
                   </div>
                 </div>
                 <input 
                   type="text" 
                   placeholder="ENTER ADDRESS..."
-                  className="w-full p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all"
+                  className="w-full p-4 md:p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all"
                 />
               </div>
             </div>
@@ -101,39 +101,39 @@ export default function ReportIssuePage() {
                   <Upload className="w-4 h-4 text-swiss-red" />
                   Evidence Upload
                 </label>
-                <div className="border-4 border-dashed border-swiss-fg/40 p-16 flex flex-col items-center gap-6 hover:border-swiss-red hover:bg-swiss-red/5 transition-all group cursor-pointer">
-                  <div className="w-20 h-20 border-4 border-swiss-fg flex items-center justify-center group-hover:border-swiss-red">
-                    <Upload className="w-8 h-8 text-swiss-fg group-hover:text-swiss-red" />
+                <div className="border-4 border-dashed border-swiss-fg/40 p-8 md:p-16 flex flex-col items-center gap-6 hover:border-swiss-red hover:bg-swiss-red/5 transition-all group cursor-pointer">
+                  <div className="w-16 h-16 md:w-20 md:h-20 border-4 border-swiss-fg flex items-center justify-center group-hover:border-swiss-red">
+                    <Upload className="w-6 h-6 md:w-8 md:h-8 text-swiss-fg group-hover:text-swiss-red" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-black tracking-tighter uppercase mb-2">DRAG AND DROP MEDIA</p>
-                    <p className="text-[10px] font-bold text-swiss-fg/40 uppercase">MAX FILE SIZE: 25MB (PNG, JPG, MP4)</p>
+                    <p className="text-xs md:text-sm font-black tracking-tighter uppercase mb-2">DRAG AND DROP MEDIA</p>
+                    <p className="text-[8px] md:text-[10px] font-bold text-swiss-fg/40 uppercase">MAX FILE SIZE: 25MB (PNG, JPG, MP4)</p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-8 border-4 border-swiss-red bg-swiss-red/5">
+              <div className="p-6 md:p-8 border-4 border-swiss-red bg-swiss-red/5">
                 <p className="text-[10px] font-black tracking-widest uppercase text-swiss-red mb-2">NOTICE</p>
-                <p className="text-xs font-bold leading-relaxed text-swiss-fg/80">
-                  BY SUBMITTING THIS REPORT, YOU CONFIRM THAT THE INFORMATION PROVIDED IS ACCURATE TO THE BEST OF YOUR KNOWLEDGE. FALSE REPORTING MAY LEAD TO SYSTEM RESTRICTIONS.
+                <p className="text-[10px] md:text-xs font-bold leading-relaxed text-swiss-fg/80">
+                  BY SUBMITTING THIS REPORT, YOU CONFIRM THAT THE INFORMATION PROVIDED IS ACCURATE TO THE BEST OF YOUR KNOWLEDGE.
                 </p>
               </div>
             </div>
           )}
 
           {/* Navigation Buttons */}
-          <div className="flex gap-4 pt-12 border-t-4 border-swiss-fg">
+          <div className="flex flex-col sm:flex-row gap-4 pt-8 md:pt-12 border-t-4 border-swiss-fg">
             {step > 1 && (
               <button 
                 onClick={() => setStep(s => s - 1)}
-                className="flex-1 py-6 border-4 border-swiss-fg font-black tracking-widest uppercase hover:bg-swiss-muted transition-colors"
+                className="flex-1 py-4 md:py-6 border-4 border-swiss-fg font-black tracking-widest uppercase hover:bg-swiss-muted transition-colors text-sm"
               >
                 ← BACK
               </button>
             )}
             <button 
               onClick={() => step < 3 ? setStep(s => s + 1) : null}
-              className={`flex-[2] py-6 bg-swiss-fg text-swiss-bg font-black tracking-widest uppercase hover:bg-swiss-red transition-colors flex items-center justify-center gap-3`}
+              className={`flex-[2] py-4 md:py-6 bg-swiss-fg text-swiss-bg font-black tracking-widest uppercase hover:bg-swiss-red transition-colors flex items-center justify-center gap-3 text-sm`}
             >
               {step === 3 ? "FINALIZE REPORT" : "CONTINUE"}
               {step === 3 ? <Send className="w-5 h-5" /> : null}
@@ -143,7 +143,7 @@ export default function ReportIssuePage() {
       </div>
 
       {/* Footer Info */}
-      <div className="grid grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-8">
         {[
           { label: "01. SECURE", desc: "END-TO-END ENCRYPTED" },
           { label: "02. VERIFIED", desc: "GPS TIMESTAMPED" },

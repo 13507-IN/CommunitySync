@@ -1,10 +1,58 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Upload, MapPin, AlertTriangle, Send } from "lucide-react";
+import { createReport } from "@/lib/api";
 
 export default function ReportIssuePage() {
   const [step, setStep] = useState(1);
+  const router = useRouter();
+  const [category, setCategory] = useState<"infrastructure" | "health" | "safety" | "other">("infrastructure");
+  const [description, setDescription] = useState("");
+  const [address, setAddress] = useState("");
+  const [title, setTitle] = useState("");
+  const [urgency, setUrgency] = useState<"low" | "medium" | "high">("medium");
+  const [imageUrl, setImageUrl] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const categoryOptions = [
+    { label: "INFRA", value: "infrastructure" },
+    { label: "HEALTH", value: "health" },
+    { label: "SAFETY", value: "safety" },
+    { label: "OTHER", value: "other" },
+  ] as const;
+
+  async function handleFinalSubmit() {
+    setError(null);
+    setSuccess(null);
+    setIsSubmitting(true);
+
+    try {
+      await createReport({
+        title: title.trim() || `${category.toUpperCase()} issue report`,
+        description,
+        category,
+        urgency,
+        location: address,
+        address,
+        images: imageUrl ? [imageUrl] : undefined,
+      });
+
+      setSuccess("Report submitted successfully.");
+      setTimeout(() => router.push("/dashboard"), 1200);
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to submit the report right now"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 md:space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-12 md:pb-0">
@@ -47,20 +95,39 @@ export default function ReportIssuePage() {
                     Issue Category
                   </label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-                    {["INFRA", "UTILITY", "SAFETY", "HEALTH"].map((cat) => (
+                    {categoryOptions.map((cat) => (
                       <button 
-                        key={cat}
-                        className="px-4 py-6 md:px-6 md:py-8 border-4 border-swiss-fg font-black text-xs tracking-widest uppercase hover:bg-swiss-red hover:text-swiss-bg transition-all"
+                        key={cat.value}
+                        type="button"
+                        onClick={() => setCategory(cat.value)}
+                        className={`px-4 py-6 md:px-6 md:py-8 border-4 border-swiss-fg font-black text-xs tracking-widest uppercase transition-all ${
+                          category === cat.value
+                            ? "bg-swiss-red text-swiss-bg"
+                            : "hover:bg-swiss-red hover:text-swiss-bg"
+                        }`}
                       >
-                        {cat}
+                        {cat.label}
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div className="space-y-4">
+                  <label className="text-[10px] font-black tracking-widest uppercase">Short Title</label>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                    placeholder="BROKEN ROAD NEAR CENTRAL MARKET"
+                    className="w-full p-4 md:p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all placeholder:text-swiss-fg/20"
+                  />
+                </div>
+
+                <div className="space-y-4">
                   <label className="text-[10px] font-black tracking-widest uppercase">Description of Event</label>
                   <textarea 
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
                     className="w-full h-32 md:h-48 p-4 md:p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all placeholder:text-swiss-fg/20"
                     placeholder="PROVIDE DETAILED DESCRIPTION..."
                   />
@@ -88,8 +155,29 @@ export default function ReportIssuePage() {
                 <input 
                   type="text" 
                   placeholder="ENTER ADDRESS..."
+                  value={address}
+                  onChange={(event) => setAddress(event.target.value)}
                   className="w-full p-4 md:p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all"
                 />
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black tracking-widest uppercase">Urgency Level</label>
+                  <div className="grid grid-cols-3 gap-4">
+                    {(["low", "medium", "high"] as const).map((level) => (
+                      <button
+                        key={level}
+                        type="button"
+                        onClick={() => setUrgency(level)}
+                        className={`border-4 px-4 py-4 text-[10px] font-black uppercase tracking-widest transition-colors ${
+                          urgency === level
+                            ? "border-swiss-red bg-swiss-red text-swiss-bg"
+                            : "border-swiss-fg hover:bg-swiss-muted"
+                        }`}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -110,6 +198,13 @@ export default function ReportIssuePage() {
                     <p className="text-[8px] md:text-[10px] font-bold text-swiss-fg/40 uppercase">MAX FILE SIZE: 25MB (PNG, JPG, MP4)</p>
                   </div>
                 </div>
+                <input
+                  type="url"
+                  value={imageUrl}
+                  onChange={(event) => setImageUrl(event.target.value)}
+                  placeholder="OPTIONAL CLOUDINARY IMAGE URL..."
+                  className="w-full p-4 md:p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all"
+                />
               </div>
 
               <div className="p-6 md:p-8 border-4 border-swiss-red bg-swiss-red/5">
@@ -120,6 +215,18 @@ export default function ReportIssuePage() {
               </div>
             </div>
           )}
+
+          {error ? (
+            <div className="border-4 border-swiss-red bg-swiss-red/5 p-4 text-[10px] font-black tracking-widest uppercase text-swiss-red">
+              {error}
+            </div>
+          ) : null}
+
+          {success ? (
+            <div className="border-4 border-swiss-fg bg-swiss-muted p-4 text-[10px] font-black tracking-widest uppercase text-swiss-fg">
+              {success}
+            </div>
+          ) : null}
 
           {/* Navigation Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 pt-8 md:pt-12 border-t-4 border-swiss-fg">
@@ -132,10 +239,23 @@ export default function ReportIssuePage() {
               </button>
             )}
             <button 
-              onClick={() => step < 3 ? setStep(s => s + 1) : null}
+              type="button"
+              onClick={() => {
+                if (step < 3) {
+                  setStep((s) => s + 1);
+                  return;
+                }
+
+                void handleFinalSubmit();
+              }}
+              disabled={
+                isSubmitting ||
+                (step === 1 && description.trim().length < 10) ||
+                (step === 2 && address.trim().length < 3)
+              }
               className={`flex-[2] py-4 md:py-6 bg-swiss-fg text-swiss-bg font-black tracking-widest uppercase hover:bg-swiss-red transition-colors flex items-center justify-center gap-3 text-sm`}
             >
-              {step === 3 ? "FINALIZE REPORT" : "CONTINUE"}
+              {step === 3 ? (isSubmitting ? "SUBMITTING..." : "FINALIZE REPORT") : "CONTINUE"}
               {step === 3 ? <Send className="w-5 h-5" /> : null}
             </button>
           </div>

@@ -1,14 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  Show,
-  SignInButton, 
-  SignUpButton, 
-  UserButton 
-} from "@clerk/nextjs";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { useAuth } from "@/components/providers/auth-provider";
+import { UserButton } from "@clerk/nextjs";
 
 const navLinks = [
   { name: "Features", href: "#features" },
@@ -20,6 +17,7 @@ const navLinks = [
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,10 +48,10 @@ export function Navigation() {
           }`}
         >
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <span className={`font-display tracking-tight transition-all duration-500 ${isScrolled ? "text-xl" : "text-2xl"}`}>CommunitySync</span>
             <span className={`text-muted-foreground font-mono transition-all duration-500 ${isScrolled ? "text-[10px] mt-0.5" : "text-xs mt-1"}`}>TM</span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-12">
@@ -71,34 +69,45 @@ export function Navigation() {
 
           {/* Desktop Auth/CTA */}
           <div className="hidden md:flex items-center gap-4">
-            <Show when="signed-out">
-              <SignInButton mode="modal">
-                <button className={`text-foreground/70 hover:text-foreground transition-all duration-500 cursor-pointer ${isScrolled ? "text-xs" : "text-sm"}`}>
-                  Sign in
-                </button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <Button
-                  size="sm"
-                  className={`bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all duration-500 cursor-pointer ${isScrolled ? "px-4 h-8 text-xs" : "px-6"}`}
-                >
-                  Join Sync
-                </Button>
-              </SignUpButton>
-            </Show>
-            <Show when="signed-in">
+            {isAuthenticated ? (
+              <>
               <Button
                 size="sm"
                 variant="outline"
                 asChild
                 className={`rounded-full transition-all duration-500 ${isScrolled ? "px-4 h-8 text-xs" : "px-6"}`}
               >
-                <a href="/report">Report Issue</a>
+                <Link href="/report">Report Issue</Link>
               </Button>
-              <div className="flex items-center justify-center ml-2 border-2 border-foreground rounded-full p-0.5">
+              <Button
+                size="sm"
+                variant="ghost"
+                asChild
+                className={`rounded-full transition-all duration-500 ${isScrolled ? "px-4 h-8 text-xs" : "px-6"}`}
+              >
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+              <div className="flex items-center gap-3 ml-2">
                 <UserButton afterSignOutUrl="/" />
               </div>
-            </Show>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/auth/login"
+                  className={`text-foreground/70 hover:text-foreground transition-all duration-500 ${isScrolled ? "text-xs" : "text-sm"}`}
+                >
+                  Sign in
+                </Link>
+                <Button
+                  size="sm"
+                  asChild
+                  className={`bg-foreground hover:bg-foreground/90 text-background rounded-full transition-all duration-500 ${isScrolled ? "px-4 h-8 text-xs" : "px-6"}`}
+                >
+                  <Link href="/auth/signup">Join Sync</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -154,38 +163,39 @@ export function Navigation() {
           }`}
           style={{ transitionDelay: isMobileMenuOpen ? "300ms" : "0ms" }}
           >
-            <Show when="signed-out">
-              <SignInButton mode="modal">
-                <Button 
-                  variant="outline" 
-                  className="flex-1 rounded-full h-14 text-base cursor-pointer"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Sign in
-                </Button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <Button 
-                  className="flex-1 bg-foreground text-background rounded-full h-14 text-base cursor-pointer"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Join Sync
-                </Button>
-              </SignUpButton>
-            </Show>
-            <Show when="signed-in">
+            {isAuthenticated ? (
+              <>
               <Button
                 variant="outline"
                 className="flex-1 rounded-full h-14 text-base"
                 asChild
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <a href="/report">Report Issue</a>
+                <Link href="/dashboard">Dashboard</Link>
               </Button>
-              <div className="flex items-center justify-center border-2 border-foreground rounded-full p-1 bg-foreground/5">
+              <div className="flex items-center justify-center p-4">
                 <UserButton afterSignOutUrl="/" />
               </div>
-            </Show>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="flex-1 rounded-full h-14 text-base"
+                  asChild
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Link href="/auth/login">Sign in</Link>
+                </Button>
+                <Button
+                  className="flex-1 bg-foreground text-background rounded-full h-14 text-base"
+                  asChild
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Link href="/auth/signup">Join Sync</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

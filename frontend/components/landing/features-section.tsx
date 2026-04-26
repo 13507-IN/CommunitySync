@@ -82,9 +82,9 @@ function DeployVisual() {
 
 function AIVisual() {
   return (
-    <svg viewBox="0 0 200 160" className="w-full h-full">
+    <svg viewBox="0 0 200 160" className="w-full h-full" suppressHydrationWarning>
       {/* Central node */}
-      <circle cx="100" cy="80" r="12" fill="currentColor">
+      <circle cx="100" cy="80" r="12" fill="currentColor" suppressHydrationWarning>
         <animate attributeName="r" values="12;14;12" dur="2s" repeatCount="indefinite" />
       </circle>
       
@@ -93,7 +93,7 @@ function AIVisual() {
         const angle = (i * 60) * (Math.PI / 180);
         const radius = 50;
         return (
-          <g key={i}>
+          <g key={i} suppressHydrationWarning>
             {/* Connection line */}
             <line
               x1="100"
@@ -103,6 +103,7 @@ function AIVisual() {
               stroke="currentColor"
               strokeWidth="1"
               opacity="0.3"
+              suppressHydrationWarning
             >
               <animate
                 attributeName="opacity"
@@ -121,6 +122,7 @@ function AIVisual() {
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
+              suppressHydrationWarning
             >
               <animate
                 attributeName="r"
@@ -135,7 +137,7 @@ function AIVisual() {
       })}
       
       {/* Pulse rings */}
-      <circle cx="100" cy="80" r="30" fill="none" stroke="currentColor" strokeWidth="1" opacity="0">
+      <circle cx="100" cy="80" r="30" fill="none" stroke="currentColor" strokeWidth="1" opacity="0" suppressHydrationWarning>
         <animate attributeName="r" values="20;60" dur="2s" repeatCount="indefinite" />
         <animate attributeName="opacity" values="0.5;0" dur="2s" repeatCount="indefinite" />
       </circle>

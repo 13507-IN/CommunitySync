@@ -1,7 +1,28 @@
-import { type Response } from 'express';
+import { type Response, type Request } from 'express';
 import type { AuthenticatedRequest } from '../../types/index.js';
 import * as userService from './service.js';
 import type { UpdateProfileInput } from './schemas.js';
+import type { ProfileSetupInput } from '../auth/schemas.js';
+
+export async function profileSetup(req: Request, res: Response) {
+  try {
+    const input = req.body as ProfileSetupInput;
+    
+    const user = await userService.createOrUpdateClerkUser(input);
+    
+    res.json({
+      success: true,
+      data: user,
+      message: 'Profile setup completed successfully',
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Profile setup failed';
+    res.status(400).json({
+      success: false,
+      error: message,
+    });
+  }
+}
 
 export async function getProfile(req: AuthenticatedRequest, res: Response) {
   const userId = req.user!.userId;

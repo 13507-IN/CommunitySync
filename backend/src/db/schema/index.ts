@@ -1,4 +1,4 @@
-export { users, userRoleEnum, type User, type NewUser } from './users.js';
+export { users, userRoleEnum, type User, type NewUser, type LocationData } from './users.js';
 export { reports, reportStatusEnum, reportCategoryEnum, urgencyEnum, type Report, type NewReport } from './reports.js';
 export { tasks, taskStatusEnum, type Task, type NewTask } from './tasks.js';
 export { governmentActions, actionTypeEnum, type GovernmentAction, type NewGovernmentAction } from './government_actions.js';

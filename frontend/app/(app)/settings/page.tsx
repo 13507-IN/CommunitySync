@@ -2,10 +2,10 @@
 
 import React from "react";
 import { User, Bell, Shield, Save } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/components/providers/auth-provider";
 
 export default function SettingsPage() {
-  const { user } = useUser();
+  const { user } = useAuth();
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 lg:space-y-12 animate-in fade-in duration-700">
@@ -36,7 +36,7 @@ export default function SettingsPage() {
                 <label className="text-[10px] font-black tracking-widest uppercase">DISPLAY NAME</label>
                 <input 
                   type="text" 
-                  defaultValue={user?.fullName || ""}
+                  defaultValue={user?.name || ""}
                   disabled
                   className="w-full p-4 border-4 border-swiss-fg bg-swiss-muted font-bold text-xs tracking-widest opacity-60"
                 />
@@ -45,20 +45,16 @@ export default function SettingsPage() {
                 <label className="text-[10px] font-black tracking-widest uppercase">IDENTIFIER EMAIL</label>
                 <input 
                   type="email" 
-                  defaultValue={user?.primaryEmailAddress?.emailAddress || ""}
+                  defaultValue={user?.email || ""}
                   disabled
                   className="w-full p-4 border-4 border-swiss-fg bg-swiss-muted font-bold text-xs tracking-widest opacity-60"
                 />
               </div>
-              <p className="text-[8px] font-bold text-swiss-red uppercase italic">Profile management handled via Clerk Identity Provider.</p>
+              <p className="text-[8px] font-bold text-swiss-red uppercase italic">Profile is synced from the backend auth session.</p>
             </div>
             <div className="flex flex-col items-center justify-center border-4 border-dashed border-swiss-fg/20 p-8 hover:border-swiss-red transition-colors group">
               <div className="w-24 h-24 bg-swiss-red border-4 border-swiss-fg flex items-center justify-center mb-4 overflow-hidden">
-                {user?.imageUrl ? (
-                  <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-10 h-10 text-swiss-bg" />
-                )}
+                <User className="w-10 h-10 text-swiss-bg" />
               </div>
               <p className="text-[10px] font-black tracking-widest uppercase text-swiss-fg/40">SYSTEM AVATAR</p>
             </div>

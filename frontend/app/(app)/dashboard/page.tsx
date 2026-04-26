@@ -2,9 +2,9 @@
 
 import React from "react";
 import { ArrowUpRight, AlertCircle, CheckCircle2, Clock, Users, Globe } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
 import MapContainer from "@/components/map/MapContainer";
 import { TopCountries, RegionCount } from "@/components/map/StatsDisplay";
+import { useAuth } from "@/components/providers/auth-provider";
 
 const stats = [
   { label: "01. TOTAL REPORTS", value: "1,248", change: "+12%", icon: AlertCircle, color: "bg-swiss-fg" },
@@ -21,7 +21,7 @@ const recentActivity = [
 ];
 
 export default function DashboardPage() {
-  const { user } = useUser();
+  const { user } = useAuth();
 
   return (
     <div className="space-y-8 md:space-y-12 animate-in fade-in duration-700">
@@ -29,7 +29,7 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-4">
           <span className="px-3 py-1 bg-swiss-red text-swiss-bg text-[10px] font-black tracking-widest uppercase">
-            {user?.firstName ? `WELCOME, ${user.firstName.toUpperCase()}` : "LIVE SYSTEM"}
+            {user?.name ? `WELCOME, ${user.name.split(" ")[0].toUpperCase()}` : "LIVE SYSTEM"}
           </span>
           <div className="h-px flex-1 bg-swiss-fg/10" />
         </div>

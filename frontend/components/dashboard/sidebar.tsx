@@ -14,7 +14,7 @@ import {
   X,
   User
 } from "lucide-react";
-import { useUser, SignOutButton } from "@clerk/nextjs";
+import { useAuth } from "@/components/providers/auth-provider";
 
 const navItems = [
   { name: "01. DASHBOARD", href: "/dashboard", icon: LayoutDashboard },
@@ -32,7 +32,7 @@ interface SidebarProps {
 
 export function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { user } = useUser();
+  const { user, signOut } = useAuth();
 
   return (
     <aside className="w-80 h-full bg-swiss-bg border-r-4 border-swiss-fg flex flex-col font-swiss overflow-hidden swiss-grid-pattern relative">
@@ -81,27 +81,25 @@ export function Sidebar({ onClose }: SidebarProps) {
       <div className="p-8 border-t-4 border-swiss-fg bg-swiss-muted swiss-dots">
         <div className="flex items-center gap-4 mb-6">
           <div className="w-12 h-12 bg-swiss-red border-2 border-swiss-fg overflow-hidden flex items-center justify-center">
-            {user?.imageUrl ? (
-              <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover" />
-            ) : (
-              <User className="w-6 h-6 text-swiss-bg" />
-            )}
+            <User className="w-6 h-6 text-swiss-bg" />
           </div>
           <div className="min-w-0">
             <p className="text-xs font-black tracking-widest uppercase truncate">
-              {user?.fullName || "ANONYMOUS"}
+              {user?.name || "ANONYMOUS"}
             </p>
             <p className="text-[10px] font-bold text-swiss-fg/60 uppercase truncate">
-              {user?.primaryEmailAddress?.emailAddress ? "AUTHENTICATED" : "GUEST MODE"}
+              {user?.email ? "AUTHENTICATED" : "GUEST MODE"}
             </p>
           </div>
         </div>
-        <SignOutButton>
-          <button className="w-full flex items-center justify-between px-4 py-3 bg-swiss-fg text-swiss-bg font-bold text-xs tracking-widest hover:bg-swiss-red transition-colors duration-150 uppercase group">
-            Terminate Session
-            <X className="w-4 h-4 transition-transform group-hover:rotate-90" />
-          </button>
-        </SignOutButton>
+        <button
+          type="button"
+          onClick={() => void signOut()}
+          className="w-full flex items-center justify-between px-4 py-3 bg-swiss-fg text-swiss-bg font-bold text-xs tracking-widest hover:bg-swiss-red transition-colors duration-150 uppercase group"
+        >
+          Terminate Session
+          <X className="w-4 h-4 transition-transform group-hover:rotate-90" />
+        </button>
       </div>
     </aside>
   );

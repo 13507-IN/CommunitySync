@@ -2,14 +2,25 @@ import { pgTable, uuid, varchar, text, timestamp, boolean, jsonb, pgEnum } from 
 
 export const userRoleEnum = pgEnum('user_role', ['ngo', 'volunteer', 'govt', 'admin']);
 
+export interface LocationData {
+  area: string;
+  city: string;
+  country: string;
+  pincode: string;
+}
+
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
+  clerkId: varchar('clerk_id', { length: 255 }).unique(),
   name: varchar('name', { length: 255 }).notNull(),
+  firstName: varchar('first_name', { length: 100 }),
+  lastName: varchar('last_name', { length: 100 }),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  password: varchar('password', { length: 255 }).notNull(),
+  password: varchar('password', { length: 255 }),
   role: userRoleEnum('role').notNull().default('volunteer'),
   skills: jsonb('skills').$type<string[]>().default([]),
   location: varchar('location', { length: 100 }),
+  locationData: jsonb('location_data').$type<LocationData>(),
   phone: varchar('phone', { length: 20 }),
   avatarUrl: text('avatar_url'),
   isActive: boolean('is_active').notNull().default(true),

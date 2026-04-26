@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
-import { Bell, Search, Menu, X } from "lucide-react";
-import { useUser, UserButton } from "@clerk/nextjs";
+import { Bell, Search, Menu } from "lucide-react";
+import { useAuth } from "@/components/providers/auth-provider";
+import { UserButton } from "@clerk/nextjs";
 
 export default function DashboardLayout({
   children,
@@ -11,7 +12,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { user } = useUser();
+  const { user, signOut } = useAuth();
 
   return (
     <div className="flex min-h-screen bg-swiss-bg font-swiss selection:bg-swiss-red selection:text-swiss-bg">
@@ -65,15 +66,21 @@ export default function DashboardLayout({
             <div className="flex items-center gap-2 lg:gap-4">
               <div className="text-right hidden sm:block">
                 <p className="text-[10px] font-black tracking-widest uppercase truncate max-w-[120px]">
-                  {user?.fullName || "SY-2024-X"}
+                  {user?.name || "SY-2024-X"}
                 </p>
                 <p className="text-[8px] font-bold text-swiss-fg/60 uppercase">
-                  {user?.primaryEmailAddress?.emailAddress ? "AUTHENTICATED" : "NODE: CENTRAL-01"}
+                  {user?.role ? user.role.toUpperCase() : "AUTHENTICATED"}
                 </p>
               </div>
-              <div className="flex items-center justify-center border-2 border-swiss-fg p-0.5 bg-swiss-red">
-                <UserButton afterSignOutUrl="/" />
-              </div>
+              <UserButton 
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    userButtonAvatarBox: "border-2 border-swiss-fg rounded-none h-10 w-10",
+                    userButtonTrigger: "focus:ring-0 focus:ring-offset-0",
+                  }
+                }}
+              />
             </div>
           </div>
         </header>

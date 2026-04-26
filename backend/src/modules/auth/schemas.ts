@@ -27,7 +27,22 @@ export const updateProfileSchema = z.object({
   avatarUrl: z.string().url().optional(),
 });
 
+export const profileSetupSchema = z.object({
+  clerkId: z.string(),
+  firstName: z.string().min(2),
+  lastName: z.string().min(2),
+  email: z.string().email(),
+  role: z.enum(['ngo', 'volunteer', 'govt', 'admin']),
+  location: z.object({
+    area: z.string().min(2),
+    city: z.string().min(2),
+    country: z.string().min(2),
+    pincode: z.string().regex(/^\d{5,10}$/),
+  }),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RefreshInput = z.infer<typeof refreshSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export type ProfileSetupInput = z.infer<typeof profileSetupSchema>;

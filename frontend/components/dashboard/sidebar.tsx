@@ -11,9 +11,10 @@ import {
   Building2, 
   CheckCircle2, 
   Settings,
-  Bell,
-  LogOut
+  X,
+  User
 } from "lucide-react";
+import { useUser, SignOutButton } from "@clerk/nextjs";
 
 const navItems = [
   { name: "01. DASHBOARD", href: "/dashboard", icon: LayoutDashboard },
@@ -25,16 +26,29 @@ const navItems = [
   { name: "07. SETTINGS", href: "/settings", icon: Settings },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { user } = useUser();
 
   return (
-    <aside className="w-80 h-screen sticky top-0 bg-swiss-bg border-r-4 border-swiss-fg flex flex-col font-swiss overflow-hidden swiss-grid-pattern">
+    <aside className="w-80 h-full bg-swiss-bg border-r-4 border-swiss-fg flex flex-col font-swiss overflow-hidden swiss-grid-pattern relative">
       {/* Logo Area */}
-      <div className="p-8 border-b-4 border-swiss-fg bg-swiss-fg text-swiss-bg">
+      <div className="p-8 border-b-4 border-swiss-fg bg-swiss-fg text-swiss-bg flex items-center justify-between">
         <h1 className="text-2xl font-black tracking-tighter uppercase leading-none">
           COMMUNITY<br />SYNC
         </h1>
+        {onClose && (
+          <button 
+            onClick={onClose}
+            className="lg:hidden p-2 border-2 border-swiss-bg hover:bg-swiss-red transition-colors"
+          >
+            <X className="w-5 h-5 text-swiss-bg" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -46,6 +60,7 @@ export function Sidebar() {
               <li key={item.href}>
                 <Link 
                   href={item.href}
+                  onClick={onClose}
                   className={`group flex items-center gap-4 px-8 py-6 text-sm font-bold tracking-widest transition-all duration-150 relative border-b-2 border-swiss-fg/10 hover:bg-swiss-red hover:text-swiss-bg ${
                     isActive ? "bg-swiss-fg text-swiss-bg" : "text-swiss-fg"
                   }`}
@@ -65,16 +80,28 @@ export function Sidebar() {
       {/* User Info */}
       <div className="p-8 border-t-4 border-swiss-fg bg-swiss-muted swiss-dots">
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-12 h-12 bg-swiss-red border-2 border-swiss-fg" />
-          <div>
-            <p className="text-xs font-black tracking-widest uppercase">SAIKAT BERA</p>
-            <p className="text-[10px] font-bold text-swiss-fg/60 uppercase">ADMINISTRATOR</p>
+          <div className="w-12 h-12 bg-swiss-red border-2 border-swiss-fg overflow-hidden flex items-center justify-center">
+            {user?.imageUrl ? (
+              <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-6 h-6 text-swiss-bg" />
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-black tracking-widest uppercase truncate">
+              {user?.fullName || "ANONYMOUS"}
+            </p>
+            <p className="text-[10px] font-bold text-swiss-fg/60 uppercase truncate">
+              {user?.primaryEmailAddress?.emailAddress ? "AUTHENTICATED" : "GUEST MODE"}
+            </p>
           </div>
         </div>
-        <button className="w-full flex items-center justify-between px-4 py-3 bg-swiss-fg text-swiss-bg font-bold text-xs tracking-widest hover:bg-swiss-red transition-colors duration-150 uppercase">
-          Logout
-          <LogOut className="w-4 h-4" />
-        </button>
+        <SignOutButton>
+          <button className="w-full flex items-center justify-between px-4 py-3 bg-swiss-fg text-swiss-bg font-bold text-xs tracking-widest hover:bg-swiss-red transition-colors duration-150 uppercase group">
+            Terminate Session
+            <X className="w-4 h-4 transition-transform group-hover:rotate-90" />
+          </button>
+        </SignOutButton>
       </div>
     </aside>
   );

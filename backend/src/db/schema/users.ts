@@ -5,9 +5,9 @@ export const userRoleEnum = pgEnum('user_role', ['ngo', 'volunteer', 'govt', 'ad
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
+  clerkId: varchar('clerk_id', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  password: varchar('password', { length: 255 }).notNull(),
   role: userRoleEnum('role').notNull().default('volunteer'),
   skills: jsonb('skills').$type<string[]>().default([]),
   location: geography('location'),

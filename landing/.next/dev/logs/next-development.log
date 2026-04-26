@@ -1,0 +1,7 @@
+[00:09:30.726] Server  ERROR    ⨯ Error: Cannot find module 'next/dist/client/components/builtin/global-not-found'
+Require stack:
+- /Applications/Development/Prahari/landing/node_modules/next/dist/server/dev/on-demand-entry-handler.js
+- /Applications/Development/Prahari/landing/node_modules/next/dist/server/dev/hot-reloader-turbopack.js
+- /Applications/Development/Prahari/landing/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /Applications/Development/Prahari/landing/node_modules/next/dist/server/lib/router-server.js
+- /Applications/Development/Prahari/landing/node_modules/next/dist/server/lib/start-server.js

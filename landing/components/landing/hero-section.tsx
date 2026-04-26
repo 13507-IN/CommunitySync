@@ -1,172 +1,60 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import { AnimatedSphere } from "./animated-sphere";
-
-const words = ["create", "build", "scale", "ship"];
 
 export function HeroSection() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [wordIndex, setWordIndex] = useState(0);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setWordIndex((prev) => (prev + 1) % words.length);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
-      {/* Animated sphere background */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-40 pointer-events-none">
-        <AnimatedSphere />
-      </div>
-      
-      {/* Subtle grid lines */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={`h-${i}`}
-            className="absolute h-px bg-foreground/10"
-            style={{
-              top: `${12.5 * (i + 1)}%`,
-              left: 0,
-              right: 0,
-            }}
-          />
-        ))}
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={`v-${i}`}
-            className="absolute w-px bg-foreground/10"
-            style={{
-              left: `${8.33 * (i + 1)}%`,
-              top: 0,
-              bottom: 0,
-            }}
-          />
-        ))}
-      </div>
-      
-      <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-12 py-32 lg:py-40">
-        {/* Eyebrow */}
-        <div 
-          className={`mb-8 transition-all duration-700 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
-        >
-          <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
-            <span className="w-8 h-px bg-foreground/30" />
-            The platform for modern teams
-          </span>
-        </div>
-        
-        {/* Main headline */}
-        <div className="mb-12">
-          <h1 
-            className={`text-[clamp(3rem,12vw,10rem)] font-display leading-[0.9] tracking-tight transition-all duration-1000 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
-          >
-            <span className="block">The platform</span>
-            <span className="block">
-              to{" "}
-              <span className="relative inline-block">
-                <span 
-                  key={wordIndex}
-                  className="inline-flex"
-                >
-                  {words[wordIndex].split("").map((char, i) => (
-                    <span
-                      key={`${wordIndex}-${i}`}
-                      className="inline-block animate-char-in"
-                      style={{
-                        animationDelay: `${i * 50}ms`,
-                      }}
-                    >
-                      {char}
-                    </span>
-                  ))}
-                </span>
-                <span className="absolute -bottom-2 left-0 right-0 h-3 bg-foreground/10" />
-              </span>
+    <section className="relative pt-48 pb-24 px-8 max-w-[1440px] mx-auto swiss-grid-pattern border-x-4 border-swiss-border min-h-screen flex flex-col justify-center">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="lg:col-span-8 flex flex-col items-start gap-8">
+          <div className="flex items-center gap-4">
+            <span className="bg-swiss-accent text-white px-4 py-1 text-sm font-bold uppercase tracking-widest">
+              Live Impact
             </span>
+            <span className="text-sm font-bold uppercase tracking-widest">
+              01. Community Infrastructure
+            </span>
+          </div>
+          
+          <h1 className="text-[10rem] leading-[0.85] font-black uppercase tracking-tighter max-w-[900px] break-words">
+            Better <span className="text-swiss-accent">Communities</span> <br /> Through Unity.
           </h1>
-        </div>
-        
-        {/* Description */}
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-end">
-          <p 
-            className={`text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-xl transition-all duration-700 delay-200 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-          >
-            Your toolkit to stop configuring and start innovating. 
-            Securely build, deploy, and scale the best experiences.
+          
+          <p className="text-2xl font-medium max-w-[600px] leading-tight border-l-8 border-swiss-accent pl-8 py-2">
+            The first integrated platform connecting citizens, NGOs, and government for transparent, efficient community problem-solving.
           </p>
           
-          {/* CTAs */}
-          <div 
-            className={`flex flex-col sm:flex-row items-start gap-4 transition-all duration-700 delay-300 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-          >
-            <Button 
-              size="lg" 
-              className="bg-foreground hover:bg-foreground/90 text-background px-8 h-14 text-base rounded-full group"
-            >
-              Start free trial
-              <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+          <div className="flex flex-wrap gap-4 mt-8">
+            <Button asChild className="bg-swiss-fg hover:bg-swiss-accent text-swiss-bg rounded-none border-none h-20 px-12 text-xl font-black uppercase tracking-tighter transition-all">
+              <a href="/reports">Report Issue</a>
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="h-14 px-8 text-base rounded-full border-foreground/20 hover:bg-foreground/5"
-            >
-              Watch demo
+            <Button asChild variant="outline" className="border-4 border-swiss-border hover:bg-swiss-fg hover:text-swiss-bg rounded-none h-20 px-12 text-xl font-black uppercase tracking-tighter transition-all">
+              <a href="/dashboard">Explore Dashboard</a>
             </Button>
           </div>
         </div>
         
-      </div>
-      
-      {/* Stats marquee - full width outside container */}
-      <div 
-        className={`absolute bottom-24 left-0 right-0 transition-all duration-700 delay-500 ${
-          isVisible ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        <div className="flex gap-16 marquee whitespace-nowrap">
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="flex gap-16">
-              {[
-                { value: "20 days", label: "saved on builds", company: "NETFLIX" },
-                { value: "98%", label: "faster deployment", company: "STRIPE" },
-                { value: "300%", label: "throughput increase", company: "LINEAR" },
-                { value: "6x", label: "faster to ship", company: "NOTION" },
-              ].map((stat) => (
-                <div key={`${stat.company}-${i}`} className="flex items-baseline gap-4">
-                  <span className="text-4xl lg:text-5xl font-display">{stat.value}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {stat.label}
-                    <span className="block font-mono text-xs mt-1">{stat.company}</span>
-                  </span>
+        <div className="lg:col-span-4 flex flex-col justify-end gap-12">
+            <div className="border-4 border-swiss-border p-8 bg-swiss-muted swiss-dots aspect-square flex flex-col justify-between">
+                <div className="text-8xl font-black uppercase tracking-tighter leading-none">
+                    1.2k+
                 </div>
-              ))}
+                <div className="text-sm font-bold uppercase tracking-widest leading-tight">
+                    Issues Resolved <br /> Across 15 Cities
+                </div>
             </div>
-          ))}
+            
+            <div className="border-4 border-swiss-border p-8 bg-swiss-fg text-swiss-bg flex flex-col gap-4">
+                <div className="text-sm font-bold uppercase tracking-widest text-swiss-accent">
+                    New Report
+                </div>
+                <div className="text-xl font-bold uppercase tracking-tight">
+                    Water pipe leak detected in Sector 5, Kolkata.
+                </div>
+                <div className="text-xs font-mono opacity-60">
+                    2 MINS AGO / URGENCY: HIGH
+                </div>
+            </div>
         </div>
       </div>
-      
-      {/* Scroll indicator */}
-      
     </section>
   );
 }

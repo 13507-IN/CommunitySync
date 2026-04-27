@@ -3,6 +3,20 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, MapPin, AlertTriangle, Send } from "lucide-react";
+import LocationPicker from "@/components/map/LocationPicker";
+
+interface LocationData {
+  lat: number;
+  lng: number;
+  address?: string;
+}
+
+interface FormData {
+  category: "infrastructure" | "health" | "safety" | "other" | "environment" | "education" | "social" | "";
+  description: string;
+  location: LocationData | null;
+  images: File[];
+}
 import { createReport } from "@/lib/api";
 
 export default function ReportIssuePage() {
@@ -32,9 +46,9 @@ export default function ReportIssuePage() {
 
     try {
       await createReport({
-        title: title.trim() || `${category.toUpperCase()} issue report`,
-        description,
-        category,
+        title: title.trim() || `${formData.category.toUpperCase()} issue report`,
+        description: formData.description,
+        category: formData.category,
         urgency,
         location: address,
         address,
@@ -53,6 +67,23 @@ export default function ReportIssuePage() {
       setIsSubmitting(false);
     }
   }
+  const [formData, setFormData] = useState<FormData>({
+    category: "",
+    description: "",
+    location: null,
+    images: [],
+  });
+
+  const updateFormData = (data: Partial<FormData>) => {
+    setFormData((prev) => ({ ...prev, ...data }));
+  };
+
+  const handleLocationChange = (location: LocationData) => {
+    updateFormData({ location });
+  };
+
+  const canProceedToStep2 = formData.category && formData.description.length >= 10;
+  const canProceedToStep3 = formData.location !== null;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 md:space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-12 md:pb-0">
@@ -98,11 +129,10 @@ export default function ReportIssuePage() {
                     {categoryOptions.map((cat) => (
                       <button 
                         key={cat.value}
-                        type="button"
-                        onClick={() => setCategory(cat.value)}
+                        onClick={() => updateFormData({ category: cat.value })}
                         className={`px-4 py-6 md:px-6 md:py-8 border-4 border-swiss-fg font-black text-xs tracking-widest uppercase transition-all ${
-                          category === cat.value
-                            ? "bg-swiss-red text-swiss-bg"
+                          formData.category === cat.value 
+                            ? "bg-swiss-red text-swiss-bg" 
                             : "hover:bg-swiss-red hover:text-swiss-bg"
                         }`}
                       >
@@ -126,11 +156,14 @@ export default function ReportIssuePage() {
                 <div className="space-y-4">
                   <label className="text-[10px] font-black tracking-widest uppercase">Description of Event</label>
                   <textarea 
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
+                    value={formData.description}
+                    onChange={(e) => updateFormData({ description: e.target.value })}
                     className="w-full h-32 md:h-48 p-4 md:p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all placeholder:text-swiss-fg/20"
                     placeholder="PROVIDE DETAILED DESCRIPTION..."
                   />
+                  <p className="text-[10px] font-black tracking-widest uppercase text-swiss-fg/40">
+                    {formData.description.length} / 500 characters
+                  </p>
                 </div>
               </div>
             </div>
@@ -143,6 +176,7 @@ export default function ReportIssuePage() {
                   <MapPin className="w-4 h-4 text-swiss-red" />
                   Location Coordinates
                 </label>
+                <LocationPicker onLocationChange={handleLocationChange} />
                 <div className="h-64 md:h-80 bg-swiss-muted border-4 border-swiss-fg swiss-grid-pattern flex items-center justify-center relative overflow-hidden group">
                   <div className="absolute inset-0 bg-swiss-fg/5 swiss-diagonal" />
                   <div className="relative z-10 flex flex-col items-center gap-4 text-center px-4">
@@ -249,11 +283,15 @@ export default function ReportIssuePage() {
                 void handleFinalSubmit();
               }}
               disabled={
-                isSubmitting ||
-                (step === 1 && description.trim().length < 10) ||
-                (step === 2 && address.trim().length < 3)
+                isSubmitting || 
+                (step === 1 && !canProceedToStep2) || 
+                (step === 2 && !canProceedToStep3)
               }
-              className={`flex-[2] py-4 md:py-6 bg-swiss-fg text-swiss-bg font-black tracking-widest uppercase hover:bg-swiss-red transition-colors flex items-center justify-center gap-3 text-sm`}
+              className={`flex-[2] py-4 md:py-6 font-black tracking-widest uppercase transition-colors flex items-center justify-center gap-3 text-sm ${
+                (step === 1 && !canProceedToStep2) || (step === 2 && !canProceedToStep3)
+                  ? "bg-swiss-fg/20 text-swiss-fg/40 cursor-not-allowed"
+                  : "bg-swiss-fg text-swiss-bg hover:bg-swiss-red"
+              }`}
             >
               {step === 3 ? (isSubmitting ? "SUBMITTING..." : "FINALIZE REPORT") : "CONTINUE"}
               {step === 3 ? <Send className="w-5 h-5" /> : null}

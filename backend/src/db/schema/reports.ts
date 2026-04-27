@@ -32,6 +32,8 @@ export const reports = pgTable('reports', {
   status: reportStatusEnum('status').notNull().default('pending'),
   location: varchar('location', { length: 100 }).notNull(),
   address: text('address'),
+  latitude: real('latitude'),
+  longitude: real('longitude'),
   images: jsonb('images').$type<string[]>().default([]),
   createdBy: uuid('created_by').references(() => users.id).notNull(),
   assignedTo: uuid('assigned_to').references(() => users.id),

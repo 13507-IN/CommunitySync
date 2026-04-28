@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useEffectEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, MapPin, AlertTriangle, Send, Users, Building2, Check } from "lucide-react";
 import DynamicMapPicker from "@/components/map/DynamicMapPicker";
@@ -62,23 +62,44 @@ export default function ReportIssuePage() {
   const [ngoUsers, setNgoUsers] = useState<Recipient[]>([]);
   const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
   const [isLoadingRecipients, setIsLoadingRecipients] = useState(false);
+  const [hasLoadedRecipients, setHasLoadedRecipients] = useState(false);
+  const [recipientsError, setRecipientsError] = useState<string | null>(null);
+
+  const loadRecipients = useEffectEvent(async () => {
+    setIsLoadingRecipients(true);
+    setRecipientsError(null);
+    try {
+      const govtData = await getGovtUsers();
+      const ngoData = await getNgoUsers();
+
+      if (govtData?.data) {
+        setGovtUsers(govtData.data);
+      }
+
+      if (ngoData?.data) {
+        setNgoUsers(ngoData.data);
+      }
+
+      setHasLoadedRecipients(true);
+    } catch (err) {
+      setHasLoadedRecipients(true);
+      setRecipientsError(
+        err instanceof Error
+          ? err.message
+          : "Unable to load recipients right now."
+      );
+    } finally {
+      setIsLoadingRecipients(false);
+    }
+  });
 
   useEffect(() => {
-    async function loadRecipients() {
-      setIsLoadingRecipients(true);
-      try {
-        const govtData = await getGovtUsers();
-        const ngoData = await getNgoUsers();
-        if (govtData?.data) setGovtUsers(govtData.data);
-        if (ngoData?.data) setNgoUsers(ngoData.data);
-      } catch (err) {
-        console.error("Failed to load recipients:", err);
-      } finally {
-        setIsLoadingRecipients(false);
-      }
+    if (step !== 3 || hasLoadedRecipients || isLoadingRecipients) {
+      return;
     }
-    loadRecipients();
-  }, []);
+
+    void loadRecipients();
+  }, [step, hasLoadedRecipients, isLoadingRecipients]);
 
   const toggleRecipient = (id: string) => {
     setSelectedRecipients(prev => 
@@ -288,6 +309,22 @@ export default function ReportIssuePage() {
                 {isLoadingRecipients ? (
                   <div className="p-8 text-center">
                     <div className="w-8 h-8 border-4 border-swiss-fg/30 border-t-swiss-fg rounded-full animate-spin mx-auto" />
+                  </div>
+                ) : recipientsError ? (
+                  <div className="border-4 border-swiss-red bg-swiss-red/5 p-4 space-y-3">
+                    <p className="text-[10px] font-black tracking-widest uppercase text-swiss-red">
+                      {recipientsError}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setHasLoadedRecipients(false);
+                        void loadRecipients();
+                      }}
+                      className="border-2 border-swiss-fg px-4 py-2 text-[10px] font-black tracking-widest uppercase hover:bg-swiss-muted transition-colors"
+                    >
+                      Retry Loading Recipients
+                    </button>
                   </div>
                 ) : (
                   <>

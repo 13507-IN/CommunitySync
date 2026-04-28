@@ -13,8 +13,17 @@ export interface RefreshPayload {
   tokenVersion: number;
 }
 
+function requireSecret(secret: string | undefined, name: string): string {
+  if (!secret) {
+    throw new Error(`${name} is not configured`);
+  }
+
+  return secret;
+}
+
 export function generateAccessToken(user: User): string {
   const config = getConfig();
+  const secret = requireSecret(config.JWT_SECRET, 'JWT_SECRET');
   
   const payload: TokenPayload = {
     userId: user.id,
@@ -22,29 +31,36 @@ export function generateAccessToken(user: User): string {
     role: user.role,
   };
 
-  return jwt.sign(payload, config.JWT_SECRET, {
+  return jwt.sign(payload, secret, {
     expiresIn: config.JWT_EXPIRY as jwt.SignOptions['expiresIn'],
   });
 }
 
 export function generateRefreshToken(user: User, tokenVersion: number = 1): string {
   const config = getConfig();
+  const secret = requireSecret(config.JWT_REFRESH_SECRET, 'JWT_REFRESH_SECRET');
   
   const payload: RefreshPayload = {
     userId: user.id,
     tokenVersion,
   };
 
-  return jwt.sign(payload, config.JWT_REFRESH_SECRET, {
+  return jwt.sign(payload, secret, {
     expiresIn: config.JWT_REFRESH_EXPIRY as jwt.SignOptions['expiresIn'],
   });
 }
 
 export function verifyAccessToken(token: string): TokenPayload | null {
   const config = getConfig();
+  const secret = requireSecret(config.JWT_SECRET, 'JWT_SECRET');
   
   try {
-    return jwt.verify(token, config.JWT_SECRET) as TokenPayload;
+    const decoded = jwt.verify(token, secret);
+    if (typeof decoded === 'string') {
+      return null;
+    }
+
+    return decoded as unknown as TokenPayload;
   } catch {
     return null;
   }
@@ -52,9 +68,15 @@ export function verifyAccessToken(token: string): TokenPayload | null {
 
 export function verifyRefreshToken(token: string): RefreshPayload | null {
   const config = getConfig();
+  const secret = requireSecret(config.JWT_REFRESH_SECRET, 'JWT_REFRESH_SECRET');
   
   try {
-    return jwt.verify(token, config.JWT_REFRESH_SECRET) as RefreshPayload;
+    const decoded = jwt.verify(token, secret);
+    if (typeof decoded === 'string') {
+      return null;
+    }
+
+    return decoded as unknown as RefreshPayload;
   } catch {
     return null;
   }

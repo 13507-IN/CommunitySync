@@ -1,13 +1,14 @@
 import { type Request, type Response, type NextFunction } from 'express';
-import { createClerkClient, verifyToken } from '@clerk/backend';
+import { verifyToken } from '@clerk/backend';
 import type { AuthenticatedRequest } from '../types/index.js';
-import { getDb } from '../db/index.js';
+import { ensureDatabaseCompatibility, getDb } from '../db/index.js';
 import { users } from '../db/schema/index.js';
 import { eq } from 'drizzle-orm';
 
-const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
-});
+const authorizedParties = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:3001')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 export async function authenticate(req: Request, res: Response, next: NextFunction) {
   try {
@@ -27,10 +28,12 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     try {
       const verifiedToken = await verifyToken(token, {
         secretKey: process.env.CLERK_SECRET_KEY,
+        jwtKey: process.env.CLERK_JWT_KEY,
+        authorizedParties,
       });
       clerkUserId = verifiedToken.sub;
-    } catch (err) {
-      console.error('Clerk verifyToken error:', err);
+    } catch (error) {
+      console.error('Clerk token verification failed:', error);
       return res.status(401).json({
         success: false,
         error: 'Invalid or expired token',
@@ -38,11 +41,40 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     }
 
     // Look up user by clerkId in our database
-    const db = getDb();
-    const userResult = await db.select()
-      .from(users)
-      .where(eq(users.clerkId, clerkUserId))
-      .limit(1);
+    let userResult: Array<{
+      id: string;
+      email: string;
+      role: 'ngo' | 'volunteer' | 'govt' | 'admin';
+      isActive: boolean;
+    }> = [];
+
+    try {
+      const db = getDb();
+      userResult = await db.select({
+        id: users.id,
+        email: users.email,
+        role: users.role,
+        isActive: users.isActive,
+      })
+        .from(users)
+        .where(eq(users.clerkId, clerkUserId))
+        .limit(1);
+    } catch (error) {
+      console.error('User lookup by Clerk ID failed, retrying after compatibility check:', error);
+
+      await ensureDatabaseCompatibility();
+
+      const db = getDb();
+      userResult = await db.select({
+        id: users.id,
+        email: users.email,
+        role: users.role,
+        isActive: users.isActive,
+      })
+        .from(users)
+        .where(eq(users.clerkId, clerkUserId))
+        .limit(1);
+    }
 
     let user;
     if (userResult.length === 0) {

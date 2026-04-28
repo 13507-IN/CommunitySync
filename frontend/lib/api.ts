@@ -4,7 +4,7 @@
  */
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:5000/api";
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:5001/api";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -173,14 +173,26 @@ async function request<T>(
 
   const fullUrl = `${API_BASE_URL}${path}`;
   console.log('[API Request]', fullUrl);
-  
-  const response = await fetch(fullUrl, {
-    ...init,
-    headers,
-  }).catch((err) => {
-    console.error('[API Error]', fullUrl, err.message);
+
+  let response: Response;
+
+  try {
+    response = await fetch(fullUrl, {
+      ...init,
+      headers,
+    });
+  } catch (err) {
+    console.error('[API Error]', fullUrl, err instanceof Error ? err.message : err);
+
+    const isNetworkError = err instanceof TypeError;
+    if (isNetworkError) {
+      throw new Error(
+        `Backend unavailable at ${API_BASE_URL}. Make sure the API server is running.`
+      );
+    }
+
     throw err;
-  });
+  }
 
   const payload = (await response.json().catch(() => null)) as ApiEnvelope<T> | null;
 

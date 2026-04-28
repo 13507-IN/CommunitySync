@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -35,6 +35,7 @@ const roleOptions = [
 export default function ProfileSetupPage() {
   const router = useRouter();
   const { user, isLoaded } = useUser();
+  const { getToken } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -75,12 +76,13 @@ export default function ProfileSetupPage() {
   async function onSubmit(data: ProfileSetupFormData) {
     setIsSubmitting(true);
     try {
-      // Get Clerk token
-      const token = await user?.getIdToken();
+      const token = await getToken();
       if (!token) throw new Error("Authentication failed");
 
-      // Call backend API to save profile
-      const response = await fetch("http://localhost:5000/api/users/profile-setup", {
+      const apiBaseUrl =
+        process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:5001/api";
+
+      const response = await fetch(`${apiBaseUrl}/users/profile-setup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -103,7 +105,7 @@ export default function ProfileSetupPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || "Failed to save profile");
+        throw new Error(error.error || error.message || "Failed to save profile");
       }
 
       toast({

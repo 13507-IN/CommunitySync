@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useEffectEvent } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -55,11 +55,30 @@ export default function MapPicker({ onLocationSelect, initialLocation }: MapPick
 
   const defaultCenter: L.LatLngTuple = [20.5937, 78.9629]; // India
 
+  const emitLocationSelect = useEffectEvent((nextPosition: L.LatLng) => {
+    onLocationSelect(nextPosition.lat, nextPosition.lng);
+  });
+
+  useEffect(() => {
+    if (initialLocation) {
+      setPosition((currentPosition) => {
+        if (
+          currentPosition?.lat === initialLocation.lat &&
+          currentPosition?.lng === initialLocation.lng
+        ) {
+          return currentPosition;
+        }
+
+        return new L.LatLng(initialLocation.lat, initialLocation.lng);
+      });
+    }
+  }, [initialLocation]);
+
   useEffect(() => {
     if (position) {
-      onLocationSelect(position.lat, position.lng);
+      emitLocationSelect(position);
     }
-  }, [position, onLocationSelect]);
+  }, [position]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();

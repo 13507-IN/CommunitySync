@@ -1,63 +1,18 @@
 import { eq } from 'drizzle-orm';
 import { getDb } from '../../db/index.js';
 import { users, refreshTokens } from '../../db/schema/index.js';
-import { hashPassword, verifyPassword } from '../../utils/hash.js';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../utils/jwt.js';
 import type { User } from '../../db/schema/users.js';
 import type { RegisterInput, LoginInput } from './schemas.js';
 
 export async function createUser(input: RegisterInput): Promise<User> {
-  const db = getDb();
-  
-  const hashedPassword = await hashPassword(input.password);
-  
-  const [user] = await db.insert(users)
-    .values({
-      name: input.name,
-      email: input.email,
-      password: hashedPassword,
-      role: input.role,
-      skills: input.skills || [],
-      location: input.location || null,
-      phone: input.phone || null,
-    })
-    .returning();
-
-  return user;
+  void input;
+  throw new Error('Legacy password registration is disabled. Use Clerk sign-up and profile setup instead.');
 }
 
 export async function authenticateUser(input: LoginInput): Promise<{ user: User; accessToken: string; refreshToken: string } | null> {
-  const db = getDb();
-  
-  const userResult = await db.select()
-    .from(users)
-    .where(eq(users.email, input.email))
-    .limit(1);
-
-  if (userResult.length === 0) {
-    return null;
-  }
-
-  const user = userResult[0];
-  
-  const isValid = await verifyPassword(input.password, user.password);
-  if (!isValid) {
-    return null;
-  }
-
-  const accessToken = generateAccessToken(user);
-  const refreshToken = generateRefreshToken(user);
-
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 7);
-
-  await db.insert(refreshTokens).values({
-    userId: user.id,
-    token: refreshToken,
-    expiresAt,
-  });
-
-  return { user, accessToken, refreshToken };
+  void input;
+  return null;
 }
 
 export async function refreshAccessToken(refreshTokenString: string): Promise<{ accessToken: string; refreshToken: string } | null> {

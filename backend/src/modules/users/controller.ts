@@ -72,7 +72,7 @@ export async function getAllUsers(req: AuthenticatedRequest, res: Response) {
 }
 
 export async function getGovtUsers(req: AuthenticatedRequest, res: Response) {
-  const users = await userService.getUsersByRole('govt');
+  const users = await userService.getRecipientUsersByRole('govt');
   
   res.json({
     success: true,
@@ -81,7 +81,7 @@ export async function getGovtUsers(req: AuthenticatedRequest, res: Response) {
 }
 
 export async function getNgoUsers(req: AuthenticatedRequest, res: Response) {
-  const users = await userService.getUsersByRole('ngo');
+  const users = await userService.getRecipientUsersByRole('ngo');
   
   res.json({
     success: true,

@@ -13,6 +13,7 @@ export const envSchema = z.object({
   
   // Clerk authentication
   CLERK_SECRET_KEY: z.string(),
+  CLERK_JWT_KEY: z.string().optional(),
 
   // Legacy JWT (optional, kept for backward compatibility)
   JWT_SECRET: z.string().optional(),

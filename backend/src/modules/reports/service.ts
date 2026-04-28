@@ -6,6 +6,9 @@ import type { CreateReportInput, UpdateReportInput, ReportFilters } from './sche
 import { analyzeIssueWithML } from '../../utils/ml.js';
 import { createNotification } from '../notifications/service.js';
 
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 function calculateDistance(point1: { lat: number; lng: number }, point2: { lat: number; lng: number }): number {
   const R = 6371;
   const dLat = (point2.lat - point1.lat) * Math.PI / 180;
@@ -26,22 +29,25 @@ export async function createReport(input: CreateReportInput, userId: string): Pr
 
   // Convert lat,lng to PostGIS POINT
   let locationPoint: any = null;
-  let parsedLat: number | null = input.latitude || null;
-  let parsedLng: number | null = input.longitude || null;
+  let latitude: number | null = null;
+  let longitude: number | null = null;
+  if (input.location) {
+    [latitude, longitude] = input.location.split(',').map(Number);
+    locationPoint = sql`ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)`;
+  }
 
-  if (parsedLat !== null && parsedLng !== null) {
-    locationPoint = sql`ST_SetSRID(ST_MakePoint(${parsedLng}, ${parsedLat}), 4326)`;
-  } else if (input.location && input.location.includes(',')) {
-    const parts = input.location.split(',');
-    if (parts.length === 2) {
-      const lat = Number(parts[0]);
-      const lng = Number(parts[1]);
-      if (!isNaN(lat) && !isNaN(lng)) {
-        parsedLat = lat;
-        parsedLng = lng;
-        locationPoint = sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)`;
-      }
+  let createdBy = userId;
+  if (!uuidPattern.test(userId)) {
+    const creator = await db.select({ id: users.id })
+      .from(users)
+      .where(eq(users.clerkId, userId))
+      .limit(1);
+
+    if (!creator[0]) {
+      throw new Error('User profile not found. Complete profile setup before creating a report.');
     }
+
+    createdBy = creator[0].id;
   }
   
   const [report] = await db.insert(reports)
@@ -54,8 +60,10 @@ export async function createReport(input: CreateReportInput, userId: string): Pr
       latitude: parsedLat,
       longitude: parsedLng,
       address: input.address || null,
+      latitude,
+      longitude,
       images: input.images || [],
-      createdBy: userId,
+      createdBy,
       status: 'pending',
     })
     .returning();
@@ -129,6 +137,8 @@ export async function getReports(filters: ReportFilters): Promise<{ data: Report
     latitude: reports.latitude,
     longitude: reports.longitude,
     address: reports.address,
+    latitude: reports.latitude,
+    longitude: reports.longitude,
     images: reports.images,
     createdBy: reports.createdBy,
     assignedTo: reports.assignedTo,

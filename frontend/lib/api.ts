@@ -171,9 +171,15 @@ async function request<T>(
     }
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const fullUrl = `${API_BASE_URL}${path}`;
+  console.log('[API Request]', fullUrl);
+  
+  const response = await fetch(fullUrl, {
     ...init,
     headers,
+  }).catch((err) => {
+    console.error('[API Error]', fullUrl, err.message);
+    throw err;
   });
 
   const payload = (await response.json().catch(() => null)) as ApiEnvelope<T> | null;

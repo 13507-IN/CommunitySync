@@ -103,7 +103,23 @@ export async function getReports(filters: ReportFilters): Promise<{ data: Report
   
   const offset = (filters.page - 1) * filters.limit;
   
-  const data = await db.select()
+  const data = await db.select({
+    id: reports.id,
+    title: reports.title,
+    description: reports.description,
+    category: reports.category,
+    urgency: reports.urgency,
+    status: reports.status,
+    location: reports.location,
+    address: reports.address,
+    images: reports.images,
+    createdBy: reports.createdBy,
+    assignedTo: reports.assignedTo,
+    urgencyScore: reports.urgencyScore,
+    isPriority: reports.isPriority,
+    createdAt: reports.createdAt,
+    updatedAt: reports.updatedAt,
+  })
     .from(reports)
     .where(whereClause)
     .orderBy(desc(reports.createdAt))

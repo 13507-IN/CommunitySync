@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, AlertCircle, CheckCircle2, Clock, Users, Globe, Loader2 } from "lucide-react";
+import { ArrowUpRight, AlertCircle, CheckCircle2, Clock, Users, Globe, Loader2, ShieldCheck, MapPin } from "lucide-react";
 import MapContainer from "@/components/map/MapContainer";
 import { TopCountries, RegionCount } from "@/components/map/StatsDisplay";
 import { useAuth } from "@/components/providers/auth-provider";
 import { getReports, getAllUsers, type Report } from "@/lib/api";
+import { AccountabilityModal } from "@/components/transparency/AccountabilityModal";
 
 interface DashboardStats {
   totalReports: number;
@@ -52,6 +53,7 @@ export default function DashboardPage() {
   });
   const [recentReports, setRecentReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -269,33 +271,50 @@ export default function DashboardPage() {
                 <thead>
                   <tr className="border-b-4 border-swiss-fg bg-swiss-fg text-swiss-bg text-[10px] font-black tracking-widest uppercase">
                     <th className="px-8 py-4">ID</th>
-                    <th className="px-8 py-4">TITLE</th>
+                    <th className="px-8 py-4">TITLE & ROAD</th>
                     <th className="px-8 py-4">CATEGORY</th>
                     <th className="px-8 py-4">STATUS</th>
-                    <th className="px-8 py-4 text-right">TIME</th>
+                    <th className="px-8 py-4">TIME</th>
+                    <th className="px-8 py-4 text-right">ACCOUNTABILITY</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y-2 divide-swiss-fg/10">
-                  {recentActivity.map((activity) => (
-                    <tr key={activity.id} className="hover:bg-swiss-muted transition-colors group">
-                      <td className="px-8 py-6 font-black text-xs">{activity.id}</td>
-                      <td className="px-8 py-6 text-xs font-bold uppercase truncate max-w-[200px]">{activity.title}</td>
+                  {recentReports.map((report) => (
+                    <tr 
+                      key={report.id} 
+                      onClick={() => setSelectedReport(report)}
+                      className="hover:bg-swiss-muted transition-colors group cursor-pointer"
+                    >
+                      <td className="px-8 py-6 font-black text-xs">#{report.id.substring(0, 8).toUpperCase()}</td>
+                      <td className="px-8 py-6 max-w-[280px]">
+                        <p className="text-xs font-bold uppercase truncate">{report.title}</p>
+                        <p className="text-[9px] font-black text-swiss-red uppercase truncate mt-0.5 flex items-center gap-1">
+                          <MapPin className="w-3 h-3 shrink-0" />
+                          {report.address || report.location}
+                        </p>
+                      </td>
                       <td className="px-8 py-6">
-                        <span className="px-2 py-1 border border-swiss-fg text-[8px] font-black tracking-widest">
-                          {activity.category}
+                        <span className="px-2 py-1 border border-swiss-fg text-[8px] font-black tracking-widest uppercase">
+                          {report.category}
                         </span>
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-2">
                           <div className={`w-2 h-2 ${
-                            activity.status.includes('CLOSED') || activity.status.includes('VERIFIED') ? 'bg-green-500' 
-                            : activity.status.includes('PENDING') ? 'bg-swiss-red' 
+                            report.status.includes('closed') || report.status.includes('verified') ? 'bg-green-500' 
+                            : report.status.includes('pending') ? 'bg-swiss-red' 
                             : 'bg-yellow-500'
                           }`} />
-                          <span className="text-[10px] font-black tracking-widest">{activity.status}</span>
+                          <span className="text-[10px] font-black tracking-widest uppercase">{statusLabel(report.status)}</span>
                         </div>
                       </td>
-                      <td className="px-8 py-6 text-right text-[10px] font-bold text-swiss-fg/40">{activity.time}</td>
+                      <td className="px-8 py-6 text-[10px] font-bold text-swiss-fg/40">{timeAgo(report.createdAt)}</td>
+                      <td className="px-8 py-6 text-right">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-swiss-fg text-swiss-bg text-[9px] font-black uppercase tracking-widest group-hover:bg-swiss-red transition-colors">
+                          <ShieldCheck className="w-3 h-3" />
+                          WHO'S RESPONSIBLE?
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -304,27 +323,37 @@ export default function DashboardPage() {
 
             {/* Mobile List View */}
             <div className="md:hidden divide-y-4 border-swiss-fg">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="p-6 space-y-4 bg-swiss-bg hover:bg-swiss-muted transition-colors">
+              {recentReports.map((report) => (
+                <div 
+                  key={report.id} 
+                  onClick={() => setSelectedReport(report)}
+                  className="p-6 space-y-4 bg-swiss-bg hover:bg-swiss-muted transition-colors cursor-pointer"
+                >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-[8px] font-black text-swiss-red uppercase mb-1">{activity.id}</p>
-                      <p className="text-sm font-black uppercase tracking-tight">{activity.title}</p>
+                      <p className="text-[8px] font-black text-swiss-red uppercase mb-1">#{report.id.substring(0, 8)}</p>
+                      <p className="text-sm font-black uppercase tracking-tight">{report.title}</p>
+                      <p className="text-[9px] font-bold text-swiss-fg/60 uppercase mt-1 flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-swiss-red shrink-0" />
+                        {report.address || report.location}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 ${
-                        activity.status.includes('CLOSED') || activity.status.includes('VERIFIED') ? 'bg-green-500' 
-                        : activity.status.includes('PENDING') ? 'bg-swiss-red' 
+                        report.status.includes('closed') || report.status.includes('verified') ? 'bg-green-500' 
+                        : report.status.includes('pending') ? 'bg-swiss-red' 
                         : 'bg-yellow-500'
                       }`} />
-                      <span className="text-[8px] font-black tracking-widest">{activity.status}</span>
+                      <span className="text-[8px] font-black tracking-widest uppercase">{statusLabel(report.status)}</span>
                     </div>
                   </div>
-                  <div className="flex justify-between items-end">
-                    <span className="px-2 py-0.5 border border-swiss-fg text-[8px] font-black tracking-widest">
-                      {activity.category}
+                  <div className="flex justify-between items-center pt-2 border-t border-swiss-fg/10">
+                    <span className="px-2 py-0.5 border border-swiss-fg text-[8px] font-black tracking-widest uppercase">
+                      {report.category}
                     </span>
-                    <p className="text-[8px] font-bold text-swiss-fg/40 uppercase">{activity.time}</p>
+                    <span className="text-[8px] font-black tracking-widest uppercase text-swiss-red underline">
+                      INSPECT RESPONSIBILITY →
+                    </span>
                   </div>
                 </div>
               ))}
@@ -332,6 +361,14 @@ export default function DashboardPage() {
           </>
         )}
       </div>
+
+      {/* Public Accountability Dossier Modal */}
+      {selectedReport && (
+        <AccountabilityModal
+          report={selectedReport}
+          onClose={() => setSelectedReport(null)}
+        />
+      )}
     </div>
   );
 }

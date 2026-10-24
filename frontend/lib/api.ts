@@ -103,6 +103,9 @@ export interface GovernmentAction {
   proofImageUrl?: string;
   remarks?: string;
   performedBy: string;
+  performedByName?: string;
+  performedByRole?: string;
+  performedByEmail?: string;
   createdAt: string;
 }
 
@@ -269,6 +272,10 @@ export async function deleteReport(id: string) {
   });
 }
 
+export async function getMyReports() {
+  return request<Report[]>("/reports/my");
+}
+
 export async function getNearbyReports(lat: number, lng: number, radius?: number) {
   const searchParams = new URLSearchParams({
     lat: String(lat),
@@ -325,7 +332,7 @@ export async function createGovernmentAction(input: {
 }
 
 export async function getReportActions(reportId: string) {
-  return request<GovernmentAction[]>(`/gov/report/${reportId}`);
+  return request<GovernmentAction[]>(`/gov/report/${reportId}`, {}, false);
 }
 
 export async function updateReportStatus(reportId: string, status: string) {

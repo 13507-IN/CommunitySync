@@ -7,13 +7,17 @@ import { SignIn } from "@clerk/nextjs";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user, isLoaded } = useUser();
 
   useEffect(() => {
-    if (isSignedIn) {
-      router.replace("/auth/profile-setup");
+    if (isLoaded && isSignedIn && user) {
+      if (user.publicMetadata?.role) {
+        router.replace("/dashboard");
+      } else {
+        router.replace("/auth/profile-setup");
+      }
     }
-  }, [isSignedIn, router]);
+  }, [isLoaded, isSignedIn, user, router]);
 
   return (
     <div className="min-h-screen bg-swiss-bg font-swiss flex selection:bg-swiss-red selection:text-swiss-bg overflow-hidden relative items-center justify-center">

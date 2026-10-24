@@ -2,9 +2,10 @@
 
 import React, { useState } from "react";
 import { Sidebar } from "@/components/dashboard/sidebar";
-import { Bell, Search, Menu } from "lucide-react";
+import { Search, Menu } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { UserButton } from "@clerk/nextjs";
+import { NotificationBell } from "@/components/dashboard/NotificationBell";
 
 export default function DashboardLayout({
   children,
@@ -56,12 +57,7 @@ export default function DashboardLayout({
           </div>
           
           <div className="flex items-center gap-3 lg:gap-6">
-            <button className="relative p-2 border-2 border-swiss-fg hover:bg-swiss-red group transition-colors hidden sm:block">
-              <Bell className="w-5 h-5 text-swiss-fg group-hover:text-swiss-bg" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-swiss-red text-[8px] font-black text-swiss-bg flex items-center justify-center border border-swiss-fg">
-                3
-              </span>
-            </button>
+            <NotificationBell />
             <div className="h-8 w-px bg-swiss-fg/20 mx-2 hidden sm:block" />
             <div className="flex items-center gap-2 lg:gap-4">
               <div className="text-right hidden sm:block">

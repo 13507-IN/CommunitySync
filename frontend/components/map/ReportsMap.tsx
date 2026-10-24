@@ -38,6 +38,7 @@ const blackIcon = new L.Icon({
 
 interface ReportsMapProps {
   reports: Report[];
+  onSelectReport?: (report: Report) => void;
 }
 
 function MapBoundsManager({ reports }: { reports: Report[] }) {
@@ -56,7 +57,7 @@ function MapBoundsManager({ reports }: { reports: Report[] }) {
   return null;
 }
 
-export default function ReportsMap({ reports }: ReportsMapProps) {
+export default function ReportsMap({ reports, onSelectReport }: ReportsMapProps) {
   const defaultCenter: L.LatLngTuple = [20.5937, 78.9629]; // Center of India
 
   return (
@@ -84,7 +85,7 @@ export default function ReportsMap({ reports }: ReportsMapProps) {
               icon={isHigh ? redIcon : blackIcon}
             >
               <Popup className="font-sans">
-                <div className="p-1 min-w-[200px]">
+                <div className="p-1 min-w-[220px]">
                   <div className="flex items-center justify-between mb-2">
                     <span className={`text-[10px] font-black tracking-widest uppercase ${isHigh ? 'text-red-600' : 'text-gray-500'}`}>
                       {report.urgency} Priority
@@ -93,8 +94,22 @@ export default function ReportsMap({ reports }: ReportsMapProps) {
                       {report.category.toUpperCase()}
                     </span>
                   </div>
-                  <h3 className="text-sm font-black uppercase leading-tight mb-2">{report.title}</h3>
-                  <p className="text-xs text-gray-600 line-clamp-2">{report.description}</p>
+                  <h3 className="text-sm font-black uppercase leading-tight mb-1">{report.title}</h3>
+                  <p className="text-xs text-gray-600 line-clamp-2 mb-2">{report.description}</p>
+                  
+                  {report.address && (
+                    <p className="text-[9px] font-bold text-gray-500 uppercase truncate mb-2">
+                      📍 {report.address}
+                    </p>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => onSelectReport?.(report)}
+                    className="w-full py-1.5 px-2 bg-black text-white text-[9px] font-black uppercase tracking-widest hover:bg-red-600 transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    WHO IS RESPONSIBLE? →
+                  </button>
                 </div>
               </Popup>
             </Marker>

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Search, Filter, CheckSquare, ExternalLink, Loader2, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { Search, Filter, CheckSquare, ExternalLink, Loader2, AlertCircle, Building2, ShieldAlert } from "lucide-react";
 import { getReports, createGovernmentAction, type Report } from "@/lib/api";
 import { useAuth } from "@/components/providers/auth-provider";
 
@@ -100,6 +101,44 @@ export default function GovernmentPanel() {
 
   function statusLabel(status: string): string {
     return status.replace(/_/g, " ").toUpperCase();
+  }
+
+  if (user && user.role !== "govt" && user.role !== "admin") {
+    return (
+      <div className="max-w-2xl mx-auto py-16 border-4 border-swiss-fg p-8 md:p-12 bg-swiss-bg text-center space-y-6 shadow-[12px_12px_0_0_rgba(255,48,0,1)] animate-in fade-in duration-500">
+        <div className="w-16 h-16 bg-swiss-red border-4 border-swiss-fg flex items-center justify-center mx-auto text-white">
+          <Building2 className="w-8 h-8" />
+        </div>
+        <div>
+          <span className="px-3 py-1 bg-swiss-fg text-swiss-bg text-[10px] font-black uppercase tracking-widest">
+            OFFICIAL CLEARANCE REQUIRED
+          </span>
+          <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-swiss-fg mt-4">
+            GOVERNMENT PANEL RESTRICTED
+          </h2>
+          <p className="text-xs font-bold uppercase tracking-wider text-swiss-fg/60 mt-2 leading-relaxed">
+            Your account is currently registered with <span className="text-swiss-red">{user.role.toUpperCase()}</span> credentials. Authority action dispatching and status updating is restricted to verified municipal and departmental officers.
+          </p>
+        </div>
+        <div className="p-4 border-2 border-swiss-fg/20 bg-swiss-muted text-[10px] font-bold uppercase text-swiss-fg/70">
+          Citizens and volunteers can inspect public accountability on the Geospatial Map or track their personal submissions under "My Reports".
+        </div>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+          <Link
+            href="/dashboard"
+            className="px-8 py-4 bg-swiss-fg text-swiss-bg text-xs font-black uppercase tracking-widest hover:bg-swiss-red transition-colors"
+          >
+            RETURN TO DASHBOARD
+          </Link>
+          <Link
+            href="/my-reports"
+            className="px-8 py-4 border-4 border-swiss-fg text-xs font-black uppercase tracking-widest hover:bg-swiss-muted transition-colors"
+          >
+            VIEW MY REPORTS
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (

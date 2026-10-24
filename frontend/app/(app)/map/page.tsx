@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Filter, Layers, ChevronUp, ChevronDown, Loader2, AlertCircle, MapPin } from "lucide-react";
+import { Filter, Layers, ChevronUp, ChevronDown, Loader2, AlertCircle, MapPin, ShieldCheck } from "lucide-react";
 import { getReports, type Report } from "@/lib/api";
 import DynamicReportsMap from "@/components/map/DynamicReportsMap";
+import { AccountabilityModal } from "@/components/transparency/AccountabilityModal";
 
 export default function MapViewPage() {
   const [isControlsOpen, setIsControlsOpen] = useState(false);
@@ -11,6 +12,7 @@ export default function MapViewPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [urgencyFilter, setUrgencyFilter] = useState<string | null>(null);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
   useEffect(() => {
     async function fetchReports() {
@@ -172,7 +174,11 @@ export default function MapViewPage() {
                   </div>
                 ) : (
                   (highPriorityReports.length > 0 ? highPriorityReports : filteredReports.slice(0, 10)).map((report) => (
-                    <div key={report.id} className="p-4 md:p-6 border-b-2 border-swiss-fg/10 hover:bg-swiss-red/5 transition-all group cursor-pointer">
+                    <div 
+                      key={report.id} 
+                      onClick={() => setSelectedReport(report)}
+                      className="p-4 md:p-6 border-b-2 border-swiss-fg/10 hover:bg-swiss-red/5 transition-all group cursor-pointer"
+                    >
                       <div className="flex justify-between items-start mb-2">
                         <span className={`text-[10px] font-black tracking-widest ${
                           report.urgency === "high" ? "text-swiss-red" : "text-swiss-fg/40"
@@ -182,11 +188,17 @@ export default function MapViewPage() {
                         <span className="text-[8px] font-bold text-swiss-fg/40">#{report.id.substring(0, 8)}</span>
                       </div>
                       <h4 className="text-xs md:text-sm font-black tracking-tighter uppercase leading-tight mb-2">{report.title}</h4>
-                      <div className="flex items-center gap-2 text-[8px] font-black text-swiss-fg/60">
-                        <MapPin className="w-3 h-3" />
-                        {report.latitude && report.longitude
-                          ? `${report.latitude.toFixed(4)}° N, ${report.longitude.toFixed(4)}° E`
-                          : report.location}
+                      <div className="flex items-center gap-2 text-[8px] font-black text-swiss-fg/60 mb-3">
+                        <MapPin className="w-3 h-3 text-swiss-red shrink-0" />
+                        <span className="truncate">
+                          {report.address || (report.latitude && report.longitude
+                            ? `${report.latitude.toFixed(4)}° N, ${report.longitude.toFixed(4)}° E`
+                            : report.location)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-swiss-fg/10 text-[9px] font-black uppercase text-swiss-red group-hover:underline">
+                        <span>INSPECT RESPONSIBILITY</span>
+                        <ShieldCheck className="w-3.5 h-3.5" />
                       </div>
                     </div>
                   ))
@@ -198,7 +210,7 @@ export default function MapViewPage() {
 
         {/* Map Area */}
         <div className="flex-1 border-4 border-swiss-fg bg-swiss-muted relative overflow-hidden group shadow-[12px_12px_0_0_rgba(0,0,0,0.05)] md:shadow-[20px_20px_0_0_rgba(0,0,0,0.05)] mb-14 md:mb-0">
-          <DynamicReportsMap reports={reportsWithCoords} />
+          <DynamicReportsMap reports={reportsWithCoords} onSelectReport={setSelectedReport} />
 
           {/* Map Coordinates Overlay */}
           <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 p-3 md:p-4 bg-swiss-fg/90 backdrop-blur text-swiss-bg text-[8px] md:text-[10px] font-black tracking-widest uppercase flex flex-col gap-1 z-[1000] border-2 border-swiss-bg">
@@ -208,6 +220,14 @@ export default function MapViewPage() {
           </div>
         </div>
       </div>
+
+      {/* Public Accountability & Transparency Dossier Modal */}
+      {selectedReport && (
+        <AccountabilityModal 
+          report={selectedReport} 
+          onClose={() => setSelectedReport(null)} 
+        />
+      )}
     </div>
   );
 }

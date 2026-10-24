@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { getDb } from '../../db/index.js';
-import { governmentActions, reports } from '../../db/schema/index.js';
+import { governmentActions, reports, users } from '../../db/schema/index.js';
 import type { GovernmentAction } from '../../db/schema/government_actions.js';
 import type { GovernmentActionInput, UpdateReportStatusInput } from './schemas.js';
 import * as reportService from '../reports/service.js';
@@ -32,11 +32,24 @@ export async function createGovernmentAction(input: GovernmentActionInput, userI
   return action;
 }
 
-export async function getActionsByReportId(reportId: string): Promise<GovernmentAction[]> {
+export async function getActionsByReportId(reportId: string) {
   const db = getDb();
   
-  const result = await db.select()
+  const result = await db.select({
+    id: governmentActions.id,
+    reportId: governmentActions.reportId,
+    department: governmentActions.department,
+    actionType: governmentActions.actionType,
+    proofImageUrl: governmentActions.proofImageUrl,
+    remarks: governmentActions.remarks,
+    performedBy: governmentActions.performedBy,
+    performedByName: users.name,
+    performedByRole: users.role,
+    performedByEmail: users.email,
+    createdAt: governmentActions.createdAt,
+  })
     .from(governmentActions)
+    .leftJoin(users, eq(governmentActions.performedBy, users.id))
     .where(eq(governmentActions.reportId, reportId))
     .orderBy(governmentActions.createdAt);
 

@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, MapPin, User } from "lucide-react";
+import { setupProfile } from "@/lib/api";
 
 const profileSetupSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -80,32 +81,20 @@ export default function ProfileSetupPage() {
       const token = await getToken();
       if (!token) throw new Error("Authentication failed");
 
-      // Call backend API to save profile
-      const response = await fetch("http://localhost:5000/api/users/profile-setup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      // Call backend API to save profile using API_BASE_URL
+      await setupProfile({
+        clerkId: user?.id || "",
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: user?.primaryEmailAddress?.emailAddress || "",
+        role: data.role,
+        location: {
+          area: data.area,
+          city: data.city,
+          country: data.country,
+          pincode: data.pincode,
         },
-        body: JSON.stringify({
-          clerkId: user?.id,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          email: user?.primaryEmailAddress?.emailAddress,
-          role: data.role,
-          location: {
-            area: data.area,
-            city: data.city,
-            country: data.country,
-            pincode: data.pincode,
-          },
-        }),
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to save profile");
-      }
 
       toast({
         title: "Success!",

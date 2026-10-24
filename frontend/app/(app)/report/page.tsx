@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, MapPin, AlertTriangle, Send, Users, Building2, Check } from "lucide-react";
 import DynamicMapPicker from "@/components/map/DynamicMapPicker";
+import { VoiceReportingCard } from "@/components/report/VoiceReportingCard";
 import { createReport, getGovtUsers, getNgoUsers } from "@/lib/api";
 import type { CreateReportPayload } from "@/lib/api";
 
@@ -53,6 +54,22 @@ export default function ReportIssuePage() {
 
   const handleLocationChange = (location: LocationData) => {
     updateFormData({ location });
+  };
+
+  const handleVoiceReportComplete = (data: {
+    description: string;
+    category: any;
+    urgency: "low" | "medium" | "high";
+    title: string;
+  }) => {
+    updateFormData({
+      description: data.description,
+      category: data.category,
+    });
+    setTitle(data.title);
+    setUrgency(data.urgency);
+    setSuccess(`Voice analysis complete: ${data.category.toUpperCase()} issue detected (${data.urgency.toUpperCase()} urgency).`);
+    setTimeout(() => setSuccess(null), 4000);
   };
 
   const canProceedToStep2 = formData.category && formData.description.length >= 10;
@@ -176,6 +193,17 @@ export default function ReportIssuePage() {
         <div className="p-6 md:p-12 space-y-8 md:space-y-12">
           {step === 1 && (
             <div className="space-y-8 animate-in fade-in duration-500">
+              {/* Hands-free Voice Mode */}
+              <VoiceReportingCard onTranscriptComplete={handleVoiceReportComplete} />
+
+              <div className="flex items-center gap-4 py-2">
+                <div className="h-0.5 flex-1 bg-swiss-fg/10" />
+                <span className="text-[9px] font-black uppercase tracking-widest text-swiss-fg/40">
+                  OR CONFIGURE DETAILS MANUALLY
+                </span>
+                <div className="h-0.5 flex-1 bg-swiss-fg/10" />
+              </div>
+
               <div className="grid grid-cols-1 gap-8">
                 <div className="space-y-4">
                   <label className="text-[10px] font-black tracking-widest uppercase flex items-center gap-2">
@@ -235,7 +263,18 @@ export default function ReportIssuePage() {
                 </label>
                 <div className="h-80 bg-swiss-muted border-4 border-swiss-fg swiss-grid-pattern flex items-center justify-center relative overflow-hidden group">
                   <DynamicMapPicker 
-                    onLocationSelect={(lat, lng) => updateFormData({ location: { lat, lng } })}
+                    onLocationSelect={(lat: number, lng: number, addressDetails?: any) => {
+                      updateFormData({ 
+                        location: { 
+                          lat, 
+                          lng, 
+                          address: addressDetails?.formattedAddress 
+                        } 
+                      });
+                      if (addressDetails?.formattedAddress) {
+                        setAddress(addressDetails.formattedAddress);
+                      }
+                    }}
                     initialLocation={formData.location || undefined}
                   />
                   {!formData.location && (
@@ -244,13 +283,41 @@ export default function ReportIssuePage() {
                     </div>
                   )}
                 </div>
-                <input 
-                  type="text" 
-                  placeholder="ENTER ADDRESS..."
-                  value={address}
-                  onChange={(event) => setAddress(event.target.value)}
-                  className="w-full p-4 md:p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all"
-                />
+
+                {address && (
+                  <div className="p-4 border-4 border-swiss-fg bg-swiss-muted flex items-start justify-between gap-4 animate-in fade-in">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                        <span className="text-[9px] font-black tracking-widest uppercase text-swiss-red">
+                          GPS RESOLVED ROADWAY & WARD
+                        </span>
+                      </div>
+                      <p className="text-sm font-black uppercase text-swiss-fg tracking-tight">{address}</p>
+                      {formData.location && (
+                        <p className="text-[9px] font-mono font-bold text-swiss-fg/60">
+                          COORDINATES: {formData.location.lat.toFixed(5)}° N, {formData.location.lng.toFixed(5)}° E
+                        </p>
+                      )}
+                    </div>
+                    <span className="px-2.5 py-1 bg-swiss-fg text-swiss-bg text-[8px] font-black uppercase tracking-widest shrink-0">
+                      AUTO-LOCKED
+                    </span>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black tracking-widest uppercase text-swiss-fg/60">
+                    Address / Landmark Confirmation
+                  </label>
+                  <input 
+                    type="text" 
+                    placeholder="ENTER OR CONFIRM ADDRESS..."
+                    value={address}
+                    onChange={(event) => setAddress(event.target.value)}
+                    className="w-full p-4 md:p-6 border-4 border-swiss-fg bg-swiss-muted focus:outline-none focus:bg-white focus:border-swiss-red font-bold text-sm tracking-tight transition-all"
+                  />
+                </div>
                 <div className="space-y-4">
                   <label className="text-[10px] font-black tracking-widest uppercase">Urgency Level</label>
                   <div className="grid grid-cols-3 gap-4">

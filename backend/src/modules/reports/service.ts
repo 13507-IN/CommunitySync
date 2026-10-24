@@ -96,6 +96,15 @@ export async function getReportById(id: string): Promise<Report | null> {
   return result[0] || null;
 }
 
+export async function getReportsByUser(userId: string): Promise<Report[]> {
+  const db = getDb();
+  
+  return db.select()
+    .from(reports)
+    .where(eq(reports.createdBy, userId))
+    .orderBy(desc(reports.createdAt));
+}
+
 export async function getReports(filters: ReportFilters): Promise<{ data: Report[]; total: number }> {
   const db = getDb();
   

@@ -51,6 +51,16 @@ export async function getReportById(req: AuthenticatedRequest, res: Response) {
   });
 }
 
+export async function getMyReports(req: AuthenticatedRequest, res: Response) {
+  const userId = req.user!.userId;
+  const reports = await reportService.getReportsByUser(userId);
+
+  res.json({
+    success: true,
+    data: reports,
+  });
+}
+
 export async function updateReport(req: AuthenticatedRequest, res: Response) {
   const id = req.params.id as string;
   const input = req.body as UpdateReportInput;

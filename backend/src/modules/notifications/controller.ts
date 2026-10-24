@@ -58,6 +58,6 @@ export async function getUnreadCount(req: AuthenticatedRequest, res: Response) {
   
   res.json({
     success: true,
-    data: { unreadCount: count },
+    data: { count, unreadCount: count },
   });
 }

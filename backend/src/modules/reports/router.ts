@@ -11,6 +11,8 @@ router.get('/', validateQuery(reportFiltersSchema), reportController.getReports)
 
 router.get('/nearby', reportController.getNearbyReports);
 
+router.get('/my', authenticate, reportController.getMyReports);
+
 router.get('/:id', reportController.getReportById);
 
 router.put('/:id', authenticate, validateBody(updateReportSchema), reportController.updateReport);

@@ -23,7 +23,7 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
+    <section className="relative min-h-screen min-h-[800px] flex flex-col justify-center overflow-hidden">
       {/* Visual background elements */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-swiss-bg" />
@@ -35,7 +35,7 @@ export function HeroSection() {
         <AnimatedSphere />
       </div>
       
-      <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-12 py-32 lg:py-40">
+      <div className="relative z-10 max-w-[1400px] w-full mx-auto px-6 lg:px-12 pt-28 pb-36 sm:pt-32 sm:pb-40 lg:pt-36 lg:pb-44">
         {/* Eyebrow */}
         <div 
           className={`mb-8 transition-all duration-700 ${
@@ -121,7 +121,7 @@ export function HeroSection() {
       
       {/* Stats marquee */}
       <div 
-        className={`absolute bottom-24 left-0 right-0 transition-all duration-700 delay-500 ${
+        className={`absolute bottom-6 sm:bottom-8 lg:bottom-10 left-0 right-0 z-20 transition-all duration-700 delay-500 ${
           isVisible ? "opacity-100" : "opacity-0"
         }`}
       >
